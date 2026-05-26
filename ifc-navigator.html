@@ -146,6 +146,24 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 </div>
 
 <script>
+
+const PSET_URLS = {
+  ifc4x3: 'psets-ifc4x3.json'
+};
+const psetCache = {};
+
+async function loadPsetData(v) {
+  const url = PSET_URLS[v];
+  if (!url) return {};
+  if (psetCache[v]) return psetCache[v];
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    psetCache[v] = d;
+    return d;
+  } catch(e) { return {}; }
+}
+
 const SCHEMA_URLS={ifc2x3:'schema-ifc2x3.json',ifc4:'schema-ifc4.json',ifc4x3:'schema-ifc4x3.json'};
 const schemaCache={};
 let mode='schema',currentSchema='ifc4x3',modelEntities={};
@@ -270,22 +288,115 @@ function goBack(){if(!history.length)return;currentNode=history.pop();if(!histor
 function updateBreadcrumb(){const chain=[...history,currentNode].slice(-4);document.getElementById('breadcrumb').innerHTML=chain.map((c,i)=>{const cur=i===chain.length-1;return`${i>0?'<span class="crumb-sep">›</span>':''}<span class="crumb ${cur?'current':''}" ${!cur?`onclick="jumpTo('${c}')"`:''}>${c}</span>`;}).join('');}
 function jumpTo(code){const i=history.indexOf(code);if(i!==-1)history=history.slice(0,i);currentNode=code;document.getElementById('backBtn').disabled=history.length===0;renderGraph(code);updateBreadcrumb();}
 
-function updateDetail(code){
-  const n=byCode[code];if(!n)return;
-  const kids=childrenMap[code]||[];const cnt=modelEntities[code.toUpperCase()]||0;
-  const doc=currentSchema==='ifc2x3'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifckernel/lexical/${code.toLowerCase()}.htm`:currentSchema==='ifc4'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${code.toLowerCase()}.htm`:`https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${code}.htm`;
-  document.getElementById('dp-title').textContent=code;
-  document.getElementById('dp-title').style.color=cnt?'#ff4081':'#00e5ff';
-  document.getElementById('dp-subtitle').textContent=n.name||'';
-  document.getElementById('dp-body').innerHTML=`
-    ${cnt?`<div class="instance-badge">◆ ${cnt} instance${cnt>1?'s':''}</div>`:''}
-    ${n.def?`<div class="dp-section"><div class="dp-section-title">Définition</div><div class="dp-section-body">${n.def.slice(0,220)}…</div></div>`:''}
-    <div class="dp-section"><div class="dp-section-title">Hiérarchie</div><div class="dp-section-body">
-      ${n.parent&&byCode[n.parent]?`Parent : <span style="color:#9c7dff;cursor:pointer" onclick="navigateTo('${n.parent}')">${n.parent}</span><br>`:'<span style="color:var(--dim)">Racine</span><br>'}
-      ${kids.length} sous-type${kids.length!==1?'s':''}
-    </div></div>
-    ${kids.length?`<div class="dp-section"><div class="dp-section-title">Sous-types (${kids.length})</div><div class="dp-section-body">${kids.map(k=>{const kc=modelEntities[k.toUpperCase()]||0;const kk=(childrenMap[k]||[]).length;return`<div style="margin-bottom:3px"><span style="color:${kc?'#ff4081':'#00e676'};cursor:pointer" onclick="navigateTo('${k}');if(isMobile())mobileView('graph')">${k}</span>${kc?`<span style="color:#ff4081;font-size:9px"> ◆${kc}</span>`:''}${kk?`<span style="color:var(--dim);font-size:9px"> [${kk}]</span>`:''}</div>`;}).join('')}</div></div>`:''}
-    <a href="${doc}" target="_blank" class="dp-link">↗ Documentation</a>`;
+async function updateDetail(code) {
+  const n = byCode[code]; if (!n) return;
+  const kids = childrenMap[code] || [];
+  const cnt = modelEntities[code.toUpperCase()] || 0;
+  const doc = currentSchema === 'ifc2x3'
+    ? `https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifckernel/lexical/${code.toLowerCase()}.htm`
+    : currentSchema === 'ifc4'
+    ? `https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${code.toLowerCase()}.htm`
+    : `https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${code}.htm`;
+
+  document.getElementById('dp-title').textContent = code;
+  document.getElementById('dp-title').style.color = cnt ? '#ff4081' : '#00e5ff';
+  document.getElementById('dp-subtitle').textContent = n.name || '';
+
+  // Charger PSET en parallèle
+  const psetData = await loadPsetData(currentSchema);
+  const classData = psetData[code] || {};
+  const attrs = classData.a || [];
+  const psets = classData.p || {};
+  const qtos = classData.q || {};
+
+  const typeLabel = t => {
+    if (t === 'str') return '<span style="color:#5a7080">string</span>';
+    if (t === 'num') return '<span style="color:#ff9100">number</span>';
+    if (t === 'bool') return '<span style="color:#76ff03">boolean</span>';
+    if (t === 'int') return '<span style="color:#ff9100">integer</span>';
+    if (t.startsWith('ref:')) return `<span style="color:#7c4dff">${t.slice(4)}</span>`;
+    if (t.startsWith('enum:')) {
+      const vals = t.slice(5).split(',').slice(0, 4);
+      return `<span style="color:#e040fb">enum</span> <span style="color:#283849;font-size:9px">${vals.join(' | ')}${t.split(',').length > 4 ? '…' : ''}</span>`;
+    }
+    return `<span style="color:#5a7080">${t}</span>`;
+  };
+
+  document.getElementById('dp-body').innerHTML = `
+    ${cnt ? `<div class="instance-badge">◆ ${cnt} instance${cnt > 1 ? 's' : ''}</div>` : ''}
+
+    ${n.def ? `<div class="dp-section">
+      <div class="dp-section-title">Définition</div>
+      <div class="dp-section-body">${n.def.slice(0, 220)}${n.def.length > 220 ? '…' : ''}</div>
+    </div>` : ''}
+
+    <div class="dp-section">
+      <div class="dp-section-title">Hiérarchie</div>
+      <div class="dp-section-body">
+        ${n.parent && byCode[n.parent] ? `Parent : <span style="color:#9c7dff;cursor:pointer" onclick="navigateTo('${n.parent}')">${n.parent}</span><br>` : '<span style="color:var(--dim)">Racine</span><br>'}
+        ${kids.length} sous-type${kids.length !== 1 ? 's' : ''}
+      </div>
+    </div>
+
+    ${attrs.length ? `<div class="dp-section">
+      <div class="dp-section-title">Attributs directs (${attrs.length})</div>
+      <div class="dp-section-body">
+        <table style="width:100%;border-collapse:collapse;">
+          ${attrs.map(a => `<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:3px 0;color:${a.o ? 'var(--dim)' : 'var(--bright)'};font-size:10px;width:50%">${a.o ? '' : '<span style="color:#ff4081" title="Obligatoire">!</span> '}${a.n}</td>
+            <td style="padding:3px 0;font-size:10px">${typeLabel(a.t)}</td>
+          </tr>`).join('')}
+        </table>
+      </div>
+    </div>` : ''}
+
+    ${Object.keys(psets).length ? `<div class="dp-section">
+      <div class="dp-section-title">Property Sets (${Object.keys(psets).length})</div>
+      <div class="dp-section-body">
+        ${Object.entries(psets).map(([pname, props]) => `
+          <div style="margin-bottom:8px">
+            <div style="color:var(--cyan);font-size:10px;font-weight:600;margin-bottom:3px">${pname}</div>
+            ${props.map(p => `<div style="padding:2px 0 2px 8px;border-left:1px solid var(--border2);margin-bottom:2px">
+              <span style="color:var(--bright);font-size:10px">${p.n}</span>
+              ${p.k ? `<span style="color:#e040fb;font-size:9px"> [${p.k}]</span>` : ''}
+              ${p.d ? `<div style="color:var(--dim);font-size:9px;margin-top:1px">${p.d}</div>` : ''}
+            </div>`).join('')}
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    ${Object.keys(qtos).length ? `<div class="dp-section">
+      <div class="dp-section-title">Quantités (QTO)</div>
+      <div class="dp-section-body">
+        ${Object.entries(qtos).map(([qname, props]) => `
+          <div style="margin-bottom:8px">
+            <div style="color:#ff9100;font-size:10px;font-weight:600;margin-bottom:3px">${qname}</div>
+            ${props.map(p => `<div style="padding:2px 0 2px 8px;border-left:1px solid var(--border2);margin-bottom:2px">
+              <span style="color:var(--bright);font-size:10px">${p.n}</span>
+              ${p.d ? `<div style="color:var(--dim);font-size:9px;margin-top:1px">${p.d}</div>` : ''}
+            </div>`).join('')}
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    ${kids.length ? `<div class="dp-section">
+      <div class="dp-section-title">Sous-types (${kids.length})</div>
+      <div class="dp-section-body">
+        ${kids.map(k => {
+          const kc = modelEntities[k.toUpperCase()] || 0;
+          const kk = (childrenMap[k] || []).length;
+          return `<div style="margin-bottom:2px">
+            <span style="color:${kc ? '#ff4081' : '#00e676'};cursor:pointer" onclick="navigateTo('${k}');if(isMobile())mobileView('graph')">${k}</span>
+            ${kc ? `<span style="color:#ff4081;font-size:9px"> ◆${kc}</span>` : ''}
+            ${kk ? `<span style="color:var(--dim);font-size:9px"> [${kk}]</span>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+
+    <a href="${doc}" target="_blank" class="dp-link">↗ Documentation officielle</a>`;
 }
 
 document.getElementById('searchInput').addEventListener('input',e=>{

@@ -140,6 +140,16 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 1
 </div>
 
 <script>
+
+const PSET_URLS = { ifc2x3: 'psets-ifc2x3.json', ifc4: 'psets-ifc4.json', ifc4x3: 'psets-ifc4x3.json' };
+const psetCache = {};
+async function loadPsetData(v) {
+  const url = PSET_URLS[v]; if (!url) return {};
+  if (psetCache[v]) return psetCache[v];
+  try { const r = await fetch(url); const d = await r.json(); psetCache[v] = d; return d; }
+  catch(e) { return {}; }
+}
+
 const SCHEMA_URLS={ifc2x3:'schema-ifc2x3.json',ifc4:'schema-ifc4.json',ifc4x3:'schema-ifc4x3.json'};
 const schemaCache={};
 let mode='schema',currentSchema='ifc4x3',modelEntities={};
@@ -213,8 +223,8 @@ function renderTree(){
   getRoots().forEach(r=>rn(r,0));container.innerHTML=html;
 }
 function toggleNode(code){expandedNodes.has(code)?expandedNodes.delete(code):expandedNodes.add(code);renderTree();}
-function selectNode(code){
-  selectedCode=code;renderTree();renderDetail(code);showGridForNode(code);
+async function selectNode(code){
+  selectedCode=code;renderTree();await renderDetail(code);showGridForNode(code);
   if(isMobile())mobilePanel('detail');
 }
 function isDescOf(code,anc){let cur=byCode[code];while(cur&&cur.parent){if(cur.parent===anc)return true;cur=byCode[cur.parent];}return false;}
@@ -239,16 +249,69 @@ function renderGrid(filter){
   grid.innerHTML=items.map(n=>{const p=isPresent(n.id);const c=getCount(n.id);return`<div class="entity-card ${p?'present-card':''}" onclick="selectNode('${n.id}')"><div class="ec-name">${n.id}</div><div class="ec-parent">↳${n.parent||'racine'}</div>${c?`<div class="ec-count">${c} inst.</div>`:''}</div>`;}).join('');
 }
 function bpChain(code){const chain=[];let cur=byCode[code];while(cur&&cur.parent){chain.unshift(cur.parent);cur=byCode[cur.parent];}return chain;}
-function renderDetail(code){
-  const d=document.getElementById('detailContent');
-  if(!code||!byCode[code]){d.innerHTML='<div class="detail-empty">Cliquer sur une entité</div>';return;}
-  const n=byCode[code];const chain=bpChain(code);const kids=childrenMap[code]||[];const cnt=getCount(code);
-  const doc=currentSchema==='ifc2x3'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifckernel/lexical/${code.toLowerCase()}.htm`:currentSchema==='ifc4'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${code.toLowerCase()}.htm`:`https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${code}.htm`;
-  d.innerHTML=`<div class="detail-title">${code}</div><div class="detail-parent-chain">${chain.map(p=>`<a onclick="selectNode('${p}')">${p}</a>`).join(' › ')}${chain.length?' › ':''}${code}</div>
-    ${cnt?`<div class="instance-badge">◆ ${cnt} instance${cnt>1?'s':''}</div>`:''}
-    ${n.def?`<div class="detail-section"><div class="detail-section-title">Définition</div><div class="detail-section-body">${n.def.slice(0,280)}…</div></div>`:''}
-    ${kids.length?`<div class="detail-section"><div class="detail-section-title">Sous-types (${kids.length})</div><div class="detail-section-body">${kids.map(k=>{const kc=getCount(k);return`<a class="child-link" onclick="selectNode('${k}')">${isPresent(k)?'◆':'◇'} ${k}${kc?` <span style="color:var(--accent3)">(${kc})</span>`:''}</a>`;}).join('')}</div></div>`:''}
-    ${n.parent&&byCode[n.parent]?`<div class="detail-section"><div class="detail-section-title">Parent</div><div class="detail-section-body"><a class="child-link" onclick="selectNode('${n.parent}')">↑ ${n.parent}</a></div></div>`:''}
+async function renderDetail(code) {
+  const d = document.getElementById('detailContent');
+  if (!code || !byCode[code]) { d.innerHTML = '<div class="detail-empty">Cliquer sur une entité</div>'; return; }
+  const n = byCode[code]; const chain = bpChain(code); const kids = childrenMap[code] || []; const cnt = getCount(code);
+  const doc = currentSchema === 'ifc2x3' ? `https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifckernel/lexical/${code.toLowerCase()}.htm`
+    : currentSchema === 'ifc4' ? `https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${code.toLowerCase()}.htm`
+    : `https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${code}.htm`;
+
+  const psetData = await loadPsetData(currentSchema);
+  const cd = psetData[code] || {};
+  const attrs = cd.a || []; const psets = cd.p || {}; const qtos = cd.q || {};
+
+  const tl = t => {
+    if(t==='str') return '<span style="color:#5a7080">string</span>';
+    if(t==='num') return '<span style="color:#ff9100">number</span>';
+    if(t==='bool') return '<span style="color:#76ff03">boolean</span>';
+    if(t==='int') return '<span style="color:#ff9100">integer</span>';
+    if(t.startsWith('ref:')) return `<span style="color:#7c4dff">${t.slice(4)}</span>`;
+    if(t.startsWith('enum:')) { const v=t.slice(5).split(',').slice(0,4); return `<span style="color:#e040fb">enum</span> <span style="color:#283849;font-size:8px">${v.join('|')}…</span>`; }
+    return `<span style="color:#5a7080">${t}</span>`;
+  };
+
+  d.innerHTML = `
+    <div class="detail-title">${code}</div>
+    <div class="detail-parent-chain">${chain.map(p=>`<a onclick="selectNode('${p}')">${p}</a>`).join(' › ')}${chain.length?' › ':''}${code}</div>
+    ${cnt ? `<div class="instance-badge">◆ ${cnt} instance${cnt>1?'s':''}</div>` : ''}
+    ${n.def ? `<div class="detail-section"><div class="detail-section-title">Définition</div><div class="detail-section-body">${n.def.slice(0,280)}…</div></div>` : ''}
+
+    ${attrs.length ? `<div class="detail-section"><div class="detail-section-title">Attributs (${attrs.length})</div><div class="detail-section-body">
+      <table style="width:100%;border-collapse:collapse;">
+        ${attrs.map(a=>`<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:2px 0;color:${a.o?'var(--text-dim)':'var(--text-bright)'};font-size:9px;width:55%">${a.o?'':'<span style="color:var(--warn)">!</span> '}${a.n}</td>
+          <td style="padding:2px 0;font-size:9px">${tl(a.t)}</td>
+        </tr>`).join('')}
+      </table>
+    </div></div>` : ''}
+
+    ${Object.keys(psets).length ? `<div class="detail-section"><div class="detail-section-title">PSET (${Object.keys(psets).length})</div><div class="detail-section-body">
+      ${Object.entries(psets).map(([pn,pp])=>`<div style="margin-bottom:6px">
+        <div style="color:var(--accent);font-size:9px;font-weight:600;margin-bottom:2px">${pn}</div>
+        ${pp.map(p=>`<div style="padding:1px 0 1px 6px;border-left:1px solid var(--border)">
+          <span style="color:var(--text-bright);font-size:9px">${p.n}</span>
+          ${p.k?`<span style="color:#e040fb;font-size:8px"> [${p.k}]</span>`:''}
+          ${p.d?`<div style="color:var(--text-dim);font-size:8px">${p.d}</div>`:''}
+        </div>`).join('')}
+      </div>`).join('')}
+    </div></div>` : ''}
+
+    ${Object.keys(qtos).length ? `<div class="detail-section"><div class="detail-section-title">QTO</div><div class="detail-section-body">
+      ${Object.entries(qtos).map(([qn,qp])=>`<div style="margin-bottom:6px">
+        <div style="color:#ff9100;font-size:9px;font-weight:600;margin-bottom:2px">${qn}</div>
+        ${qp.map(p=>`<div style="padding:1px 0 1px 6px;border-left:1px solid var(--border)">
+          <span style="color:var(--text-bright);font-size:9px">${p.n}</span>
+          ${p.d?`<div style="color:var(--text-dim);font-size:8px">${p.d}</div>`:''}
+        </div>`).join('')}
+      </div>`).join('')}
+    </div></div>` : ''}
+
+    ${kids.length ? `<div class="detail-section"><div class="detail-section-title">Sous-types (${kids.length})</div><div class="detail-section-body">
+      ${kids.map(k=>{const kc=getCount(k);return`<a class="child-link" onclick="selectNode('${k}')">${isPresent(k)?'◆':'◇'} ${k}${kc?` <span style="color:var(--accent3)">(${kc})</span>`:''}</a>`;}).join('')}
+    </div></div>` : ''}
+
+    ${n.parent && byCode[n.parent] ? `<div class="detail-section"><div class="detail-section-title">Parent</div><div class="detail-section-body"><a class="child-link" onclick="selectNode('${n.parent}')">↑ ${n.parent}</a></div></div>` : ''}
     <a href="${doc}" target="_blank" class="doc-link">↗ Documentation</a>`;
 }
 document.querySelectorAll('.filter-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentFilter=btn.dataset.filter;renderGrid(currentFilter);});});
