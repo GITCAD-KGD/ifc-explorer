@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IFC Graph</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Syne:wght@400;700;800&display=swap');
+:root{--bg:#060810;--panel:#0b0f18;--border:#151d2e;--border2:#1e2a3e;--text:#8aa4c0;--text-bright:#d0e4f8;--dim:#2d3f55;--accent:#00e5ff;--warn:#ff4081;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'JetBrains Mono',monospace;color:var(--text);overflow:hidden;width:100vw;height:100vh;display:flex;flex-direction:column;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--accent);}
+.logo span{color:var(--dim);}
+.mode-tabs{display:flex;gap:3px;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:2px;}
+.mode-tab{padding:4px 12px;border-radius:3px;font-size:11px;cursor:pointer;color:var(--dim);border:none;background:transparent;font-family:'JetBrains Mono',monospace;transition:all 0.15s;}
+.mode-tab.active{background:var(--accent);color:#000;font-weight:600;}
+.schema-select{background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 8px;border-radius:3px;outline:none;}
+.schema-select:disabled{opacity:0.3;}
+.drop-btn{padding:5px 12px;border:1px dashed var(--border2);border-radius:3px;font-size:11px;cursor:pointer;color:var(--dim);background:transparent;font-family:'JetBrains Mono',monospace;transition:all 0.2s;position:relative;}
+.drop-btn:hover,.drop-btn.drag-over{border-color:var(--accent);color:var(--accent);}
+.drop-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+#dropStatus{font-size:10px;color:#00e676;}
+#modeLabel{font-size:10px;color:var(--warn);display:none;}
+#nodeCounter{margin-left:auto;font-size:11px;color:var(--dim);}
+#nodeCounter span{color:var(--text);}
+#controls{position:absolute;top:60px;left:16px;z-index:10;display:flex;flex-direction:column;gap:8px;}
+.ctrl-panel{background:rgba(11,15,24,0.92);border:1px solid var(--border2);border-radius:4px;padding:10px;backdrop-filter:blur(8px);min-width:190px;}
+.ctrl-title{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:8px;font-weight:600;}
+#searchInput{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;border-radius:3px;outline:none;}
+#searchInput:focus{border-color:var(--accent);}
+#searchInput::placeholder{color:var(--dim);}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:10px;padding:3px 6px;margin:0 -6px;cursor:pointer;border-radius:3px;}
+.legend-item:hover{background:rgba(255,255,255,0.04);}
+.legend-item.inactive{opacity:0.3;}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.slider-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:10px;}
+.slider-row label{color:var(--dim);width:75px;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);}
+.slider-val{color:var(--text);width:28px;text-align:right;}
+#resetBtn{position:absolute;top:60px;right:16px;background:rgba(11,15,24,0.92);border:1px solid var(--border2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 12px;border-radius:3px;cursor:pointer;z-index:10;}
+#resetBtn:hover{border-color:var(--accent);color:var(--accent);}
+#tooltip{position:absolute;background:rgba(11,15,24,0.96);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;font-size:11px;pointer-events:none;z-index:100;max-width:260px;display:none;backdrop-filter:blur(8px);}
+#tooltip .tt-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:3px;}
+#tooltip .tt-meta{color:var(--dim);font-size:10px;margin-bottom:5px;}
+#tooltip .tt-def{color:var(--text);font-size:10px;line-height:1.6;}
+#selectedPanel{position:absolute;bottom:16px;right:16px;background:rgba(11,15,24,0.96);border:1px solid var(--border2);border-radius:4px;padding:14px;z-index:10;width:250px;display:none;backdrop-filter:blur(8px);}
+#selectedPanel .sp-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:3px;}
+#selectedPanel .sp-meta{font-size:10px;color:var(--dim);margin-bottom:8px;}
+#selectedPanel .sp-def{font-size:10px;color:var(--text);line-height:1.7;margin-bottom:8px;}
+#selectedPanel a{font-size:10px;color:var(--accent);text-decoration:none;border:1px solid rgba(0,229,255,0.3);padding:3px 8px;border-radius:2px;}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--dim);flex-direction:column;gap:12px;z-index:50;}
+.spinner{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div>Chargement du schéma IFC...</div>
+<header>
+  <div class="logo">IFC<span>/</span>Graph</div>
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabSchema" onclick="setMode('schema')">Schéma</button>
+    <button class="mode-tab" id="tabIfc" onclick="setMode('ifc')">Fichier IFC</button>
+  </div>
+  <select class="schema-select" id="schemaSelect" onchange="onSchemaChange()">
+    <option value="ifc2x3">IFC 2x3</option>
+    <option value="ifc4">IFC 4</option>
+    <option value="ifc4x3" selected>IFC 4.3</option>
+  </select>
+  <div class="drop-btn" id="dropZone">⬡ Ouvrir .ifc<input type="file" id="fileInput" accept=".ifc"></div>
+  <div id="dropStatus"></div>
+  <div id="modeLabel">◆ Mode IFC</div>
+  <div id="nodeCounter">Nœuds: <span id="cnt-nodes">–</span> · Liens: <span id="cnt-links">–</span></div>
+</header>
+<div style="position:relative;flex:1;overflow:hidden;">
+  <svg id="graphSvg" style="width:100%;height:100%;"></svg>
+  <div id="controls">
+    <div class="ctrl-panel"><div class="ctrl-title">Recherche</div><input type="text" id="searchInput" placeholder="IfcWall..."></div>
+    <div class="ctrl-panel"><div class="ctrl-title">Groupes</div><div id="legend"></div></div>
+    <div class="ctrl-panel">
+      <div class="ctrl-title">Physique</div>
+      <div class="slider-row"><label>Répulsion</label><input type="range" id="slCharge" min="-800" max="-10" value="-120" step="10"><span class="slider-val" id="valCharge">120</span></div>
+      <div class="slider-row"><label>Distance</label><input type="range" id="slDistance" min="10" max="200" value="40" step="5"><span class="slider-val" id="valDistance">40</span></div>
+      <div class="slider-row"><label>Collision</label><input type="range" id="slCollision" min="2" max="30" value="6" step="1"><span class="slider-val" id="valCollision">6</span></div>
+    </div>
+  </div>
+  <button id="resetBtn" onclick="resetView()">↺ Recentrer</button>
+  <div id="tooltip"><div class="tt-title" id="tt-title"></div><div class="tt-meta" id="tt-meta"></div><div class="tt-def" id="tt-def"></div></div>
+  <div id="selectedPanel"><div class="sp-title" id="sp-title"></div><div class="sp-meta" id="sp-meta"></div><div class="sp-def" id="sp-def"></div><a id="sp-link" href="#" target="_blank">↗ Doc officielle</a></div>
+</div>
+<script>
+const SCHEMA_URLS={ifc2x3:'schema-ifc2x3.json',ifc4:'schema-ifc4.json',ifc4x3:'schema-ifc4x3.json'};
+const schemaCache={};
+const GROUPS={product:{l:'Produits',c:'#00e5ff'},relation:{l:'Relations',c:'#ff4081'},property:{l:'Propriétés',c:'#76ff03'},geometry:{l:'Géométrie',c:'#ff9100'},material:{l:'Matériaux',c:'#e040fb'},process:{l:'Processus',c:'#40c4ff'},control:{l:'Contrôle',c:'#ffea00'},other:{l:'Autres',c:'#37474f'}};
+let mode='schema',currentSchema='ifc4x3',modelEntities={},activeGroups=new Set(Object.keys(GROUPS)),simulation;
+
+const legendEl=document.getElementById('legend');
+Object.entries(GROUPS).forEach(([key,g])=>{
+  const div=document.createElement('div');div.className='legend-item';div.dataset.group=key;
+  div.innerHTML=`<div class="legend-dot" style="background:${g.c}"></div>${g.l}`;
+  div.addEventListener('click',()=>{activeGroups.has(key)?activeGroups.delete(key):activeGroups.add(key);div.classList.toggle('inactive');updateVisibility();});
+  legendEl.appendChild(div);
+});
+
+async function loadSchemaData(v){
+  if(schemaCache[v])return schemaCache[v];
+  document.getElementById('loading').style.display='flex';
+  const resp=await fetch(SCHEMA_URLS[v]);
+  const data=await resp.json();
+  schemaCache[v]=data;
+  document.getElementById('loading').style.display='none';
+  return data;
+}
+async function setMode(m){
+  mode=m;
+  document.getElementById('tabSchema').classList.toggle('active',m==='schema');
+  document.getElementById('tabIfc').classList.toggle('active',m==='ifc');
+  document.getElementById('schemaSelect').disabled=m==='ifc';
+  document.getElementById('modeLabel').style.display=m==='ifc'?'block':'none';
+  if(m==='schema'){const data=await loadSchemaData(currentSchema);buildGraph(data);}
+  else{if(!Object.keys(modelEntities).length){alert('Charger un fichier IFC d\'abord.');setMode('schema');return;}await buildIfcGraph();}
+}
+async function onSchemaChange(){currentSchema=document.getElementById('schemaSelect').value;if(mode==='schema'){const data=await loadSchemaData(currentSchema);buildGraph(data);}}
+async function buildIfcGraph(){
+  const ref=await loadSchemaData(currentSchema);
+  const tmpByCode={};ref.forEach(n=>tmpByCode[n.id]=n);
+  const keepCodes=new Set();
+  Object.keys(modelEntities).forEach(code=>{let cur=code;while(cur&&tmpByCode[cur]){keepCodes.add(cur);cur=tmpByCode[cur].parent;}});
+  buildGraph(ref.filter(n=>keepCodes.has(n.id)));
+}
+
+const svg=d3.select('#graphSvg');
+const mainG=svg.append('g');
+const zoom=d3.zoom().scaleExtent([0.05,8]).on('zoom',e=>mainG.attr('transform',e.transform));
+svg.call(zoom);
+
+function gW(){return document.getElementById('graphSvg').clientWidth;}
+function gH(){return document.getElementById('graphSvg').clientHeight;}
+function getNodeColor(d){if(modelEntities[d.id.toUpperCase()])return'#ff4081';return GROUPS[d.group]?.c||'#37474f';}
+function getNodeRadius(d){if(d.depth===0)return 13;if(d.depth<=2)return 9;if(d.depth<=4)return 6;if(d.depth<=6)return 3.5;return 2;}
+
+function buildGraph(rawNodes){
+  mainG.selectAll('*').remove();
+  if(!rawNodes.length)return;
+  const byCode={},childrenMap={};
+  rawNodes.forEach(n=>{byCode[n.id]=n;if(!childrenMap[n.id])childrenMap[n.id]=[];if(n.parent){if(!childrenMap[n.parent])childrenMap[n.parent]=[];childrenMap[n.parent].push(n.id);}});
+  const depth={};
+  function calcDepth(code,d){depth[code]=d;(childrenMap[code]||[]).forEach(c=>calcDepth(c,d+1));}
+  rawNodes.filter(n=>!n.parent||!byCode[n.parent]).forEach(n=>calcDepth(n.id,0));
+  const nodes=rawNodes.map(n=>({...n,depth:depth[n.id]||0}));
+  const links=rawNodes.filter(n=>n.parent&&byCode[n.parent]).map(n=>({source:n.parent,target:n.id}));
+  document.getElementById('cnt-nodes').textContent=nodes.length;
+  document.getElementById('cnt-links').textContent=links.length;
+  simulation=d3.forceSimulation(nodes)
+    .force('link',d3.forceLink(links).id(d=>d.id).distance(+document.getElementById('slDistance').value).strength(0.6))
+    .force('charge',d3.forceManyBody().strength(+document.getElementById('slCharge').value).distanceMax(400))
+    .force('center',d3.forceCenter(gW()/2,gH()/2))
+    .force('collision',d3.forceCollide().radius(d=>getNodeRadius(d)+(+document.getElementById('slCollision').value)))
+    .alphaDecay(0.015).velocityDecay(0.4);
+  const link=mainG.append('g').selectAll('line').data(links).join('line')
+    .attr('stroke','#0e1622').attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source:{depth:5};return s.depth<=3?1.5:0.5;}).attr('opacity',0.6);
+  const node=mainG.append('g').selectAll('g').data(nodes).join('g').style('cursor','pointer')
+    .call(d3.drag()
+      .on('start',(e,d)=>{if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+      .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;})
+      .on('end',(e,d)=>{if(!e.active)simulation.alphaTarget(0);d.fx=null;d.fy=null;})
+    );
+  node.filter(d=>d.depth<=3).append('circle').attr('r',d=>getNodeRadius(d)+4).attr('fill','none').attr('stroke',d=>getNodeColor(d)).attr('stroke-width',0.5).attr('opacity',0.25);
+  node.append('circle').attr('r',d=>getNodeRadius(d)).attr('fill',d=>getNodeColor(d)).attr('fill-opacity',d=>d.depth<=4?0.9:0.5).attr('stroke',d=>getNodeColor(d)).attr('stroke-width',0).attr('class','node-circle');
+  node.filter(d=>d.depth<=4).append('text').text(d=>d.id).attr('x',d=>getNodeRadius(d)+3).attr('dy','0.35em').attr('font-family','JetBrains Mono,monospace').attr('font-size',d=>d.depth<=2?'11px':'9px').attr('fill',d=>d.depth<=2?'#d0e4f8':'#5a7080').attr('pointer-events','none');
+  node.on('mouseover',(e,d)=>showTooltip(e,d)).on('mousemove',e=>moveTooltip(e)).on('mouseout',hideTooltip)
+    .on('click',(e,d)=>{e.stopPropagation();selectNode(d);highlightConnected(d,node,link);});
+  svg.on('click',()=>{clearHighlight(node,link);document.getElementById('selectedPanel').style.display='none';});
+  simulation.on('tick',()=>{link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);node.attr('transform',d=>`translate(${d.x},${d.y})`);});
+  window._node=node;window._link=link;
+  updateVisibility();
+}
+function updateVisibility(){if(!window._node)return;window._node.style('display',d=>activeGroups.has(d.group)?null:'none');window._link.style('display',d=>{const s=typeof d.source==='object'?d.source:{};const t=typeof d.target==='object'?d.target:{};return activeGroups.has(s.group)&&activeGroups.has(t.group)?null:'none';});}
+function highlightConnected(sel,node,link){const conn=new Set([sel.id]);link.each(d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;if(s===sel.id)conn.add(t);if(t===sel.id)conn.add(s);});node.select('.node-circle').attr('fill-opacity',d=>conn.has(d.id)?1:0.06).attr('r',d=>d.id===sel.id?getNodeRadius(d)*1.8:getNodeRadius(d));link.attr('stroke',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?'#00e5ff':'#0e1622';}).attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?2:0.5;}).attr('opacity',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?1:0.04;});}
+function clearHighlight(node,link){node.select('.node-circle').attr('fill-opacity',d=>d.depth<=4?0.9:0.5).attr('r',d=>getNodeRadius(d));link.attr('stroke','#0e1622').attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source:{depth:5};return s.depth<=3?1.5:0.5;}).attr('opacity',0.6);}
+const tooltip=document.getElementById('tooltip');
+function showTooltip(e,d){const c=modelEntities[d.id.toUpperCase()]?'#ff4081':(GROUPS[d.group]?.c||'#fff');document.getElementById('tt-title').textContent=d.id;document.getElementById('tt-title').style.color=c;document.getElementById('tt-meta').textContent=`${GROUPS[d.group]?.l||d.group} · profondeur ${d.depth}`;document.getElementById('tt-def').textContent=d.def||'';tooltip.style.display='block';moveTooltip(e);}
+function moveTooltip(e){tooltip.style.left=Math.min(e.clientX+16,window.innerWidth-280)+'px';tooltip.style.top=Math.min(e.clientY-10,window.innerHeight-140)+'px';}
+function hideTooltip(){tooltip.style.display='none';}
+function selectNode(d){const cnt=modelEntities[d.id.toUpperCase()]||0;const c=cnt?'#ff4081':(GROUPS[d.group]?.c||'#fff');document.getElementById('sp-title').textContent=d.id;document.getElementById('sp-title').style.color=c;document.getElementById('sp-meta').textContent=`${GROUPS[d.group]?.l||''} · parent: ${d.parent||'racine'}${cnt?' · ◆ '+cnt+' instances':''}`;document.getElementById('sp-def').textContent=d.def||'–';const docUrl=currentSchema==='ifc2x3'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifckernel/lexical/${d.id.toLowerCase()}.htm`:currentSchema==='ifc4'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${d.id.toLowerCase()}.htm`:`https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${d.id}.htm`;document.getElementById('sp-link').href=docUrl;document.getElementById('selectedPanel').style.display='block';}
+document.getElementById('searchInput').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();if(!window._node)return;if(!q){window._node.select('.node-circle').attr('fill-opacity',d=>d.depth<=4?0.9:0.5).attr('r',d=>getNodeRadius(d)).attr('fill',d=>getNodeColor(d));window._link.attr('opacity',0.6);return;}window._node.select('.node-circle').attr('fill-opacity',d=>d.id.toLowerCase().includes(q)?1:0.04).attr('r',d=>d.id.toLowerCase().includes(q)?Math.max(getNodeRadius(d),6)*2:getNodeRadius(d)).attr('fill',d=>d.id.toLowerCase().includes(q)?'#ffffff':getNodeColor(d));window._link.attr('opacity',0.02);});
+['Charge','Distance','Collision'].forEach(name=>{document.getElementById('sl'+name).addEventListener('input',e=>{document.getElementById('val'+name).textContent=name==='Charge'?Math.abs(+e.target.value):e.target.value;if(!simulation)return;if(name==='Charge')simulation.force('charge').strength(+e.target.value);else if(name==='Distance')simulation.force('link').distance(+e.target.value);else simulation.force('collision').radius(d=>getNodeRadius(d)+(+e.target.value));simulation.alpha(0.3).restart();});});
+function resetView(){svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity.translate(gW()/2,gH()/2).scale(1));if(simulation)simulation.alpha(0.5).restart();}
+const dropZone=document.getElementById('dropZone');const fileInput=document.getElementById('fileInput');
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over');});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.ifc'))loadIFC(f);});
+fileInput.addEventListener('change',e=>{if(e.target.files[0])loadIFC(e.target.files[0]);});
+function loadIFC(file){document.getElementById('dropStatus').textContent='Lecture...';const reader=new FileReader();reader.onload=e=>{const header=e.target.result.slice(0,500);const vMatch=header.match(/IFC2X3|IFC4X3|IFC4/i);if(vMatch){const v=vMatch[0].toUpperCase();currentSchema=v==='IFC2X3'?'ifc2x3':v==='IFC4X3'?'ifc4x3':'ifc4';document.getElementById('schemaSelect').value=currentSchema;}const rx=/=#\d+=\s*(IFC[A-Z0-9]+)\s*\(/gi;let m;modelEntities={};while((m=rx.exec(e.target.result))!==null){const k=m[1].toUpperCase();modelEntities[k]=(modelEntities[k]||0)+1;}document.getElementById('dropStatus').textContent=`✓ ${Object.keys(modelEntities).length} types`;setMode('ifc');};reader.readAsText(file);}
+
+// INIT
+(async()=>{const data=await loadSchemaData('ifc4x3');buildGraph(data);})();
+</script>
+</body>
+</html>

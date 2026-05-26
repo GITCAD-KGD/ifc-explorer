@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IFC Explorer Suite</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#07090f;color:#7a9ab8;font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.container{max-width:600px;padding:40px 20px;text-align:center;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:36px;color:#00e5ff;margin-bottom:8px;}
+.logo span{color:#283849;}
+.subtitle{font-size:12px;color:#283849;margin-bottom:48px;}
+.cards{display:grid;gap:16px;}
+.card{background:#0c1018;border:1px solid #1e2d42;border-radius:6px;padding:24px;text-decoration:none;color:inherit;transition:all 0.2s;text-align:left;}
+.card:hover{border-color:#00e5ff;background:#0d1420;}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#cde0f5;margin-bottom:6px;}
+.card-desc{font-size:11px;color:#5a7080;line-height:1.7;}
+.card-tag{display:inline-block;margin-top:10px;padding:2px 8px;border-radius:2px;font-size:10px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">IFC<span>/</span>Suite</div>
+  <div class="subtitle">Outils pédagogiques · IFC 2x3 · IFC 4 · IFC 4.3</div>
+  <div class="cards">
+    <a class="card" href="ifc-navigator.html">
+      <div class="card-title">IFC Navigator</div>
+      <div class="card-desc">Navigation contextuelle nœud par nœud. Cliquer sur un sous-type pour en faire le centre. Breadcrumb, recherche, mode schéma ou fichier IFC.</div>
+      <span class="card-tag" style="background:rgba(0,229,255,0.12);color:#00e5ff;">Graphe contextuel</span>
+    </a>
+    <a class="card" href="ifc-explorer.html">
+      <div class="card-title">IFC Explorer</div>
+      <div class="card-desc">Arbre hiérarchique + catalogue en grille + panneau de détail. Vue tabulaire, filtres par groupe, recherche dans l'arbre.</div>
+      <span class="card-tag" style="background:rgba(0,230,118,0.12);color:#00e676;">Arbre + catalogue</span>
+    </a>
+    <a class="card" href="ifc-graph.html">
+      <div class="card-title">IFC Graph</div>
+      <div class="card-desc">Graphe global de toutes les entités avec simulation physique. Zoom, groupes filtrables, sliders de physique, spotlight par recherche.</div>
+      <span class="card-tag" style="background:rgba(255,64,129,0.12);color:#ff4081;">Graphe global</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>
