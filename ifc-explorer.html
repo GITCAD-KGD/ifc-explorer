@@ -6,140 +6,160 @@
 <title>IFC Explorer</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Syne:wght@400;600;800&display=swap');
-:root{--bg:#0a0c0f;--bg2:#10141a;--bg3:#161c24;--border:#1e2a38;--accent:#00e5ff;--accent2:#7c4dff;--accent3:#00e676;--warn:#ff4081;--text:#c8d6e5;--text-dim:#5a7080;--text-bright:#eaf2ff;--panel:#0d1219;}
+:root{--bg:#0a0c0f;--bg2:#10141a;--bg3:#161c24;--border:#1e2a38;--accent:#00e5ff;--accent2:#7c4dff;--accent3:#00e676;--warn:#ff4081;--text:#c8d6e5;--dim:#5a7080;--bright:#eaf2ff;--panel:#0d1219;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--accent);}
-.logo span{color:var(--text-dim);}
-.mode-tabs{display:flex;gap:3px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px;}
-.mode-tab{padding:3px 10px;border-radius:3px;font-size:10px;cursor:pointer;color:var(--text-dim);border:none;background:transparent;font-family:'JetBrains Mono',monospace;transition:all 0.15s;}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--accent);}
+.logo span{color:var(--dim);}
+.back-link{font-size:10px;color:var(--dim);text-decoration:none;padding:3px 7px;border:1px solid var(--border);border-radius:3px;}
+.back-link:hover{color:var(--accent);border-color:var(--accent);}
+.mode-tabs{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px;}
+.mode-tab{padding:3px 9px;border-radius:3px;font-size:10px;cursor:pointer;color:var(--dim);border:none;background:transparent;font-family:'JetBrains Mono',monospace;transition:all 0.15s;}
 .mode-tab.active{background:var(--accent);color:#000;font-weight:600;}
-.schema-select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 6px;border-radius:3px;outline:none;}
+.schema-select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 5px;border-radius:3px;outline:none;}
 .schema-select:disabled{opacity:0.3;}
-.drop-inline{padding:4px 10px;border:1px dashed var(--border);border-radius:3px;font-size:10px;cursor:pointer;color:var(--text-dim);background:transparent;transition:all 0.2s;position:relative;display:flex;align-items:center;gap:6px;}
-.drop-inline:hover,.drop-inline.drag-over{border-color:var(--accent);color:var(--accent);}
-.drop-inline input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-#dropStatus{font-size:10px;color:var(--accent3);}
-#modeLabel{font-size:10px;color:var(--warn);display:none;}
-.main{display:grid;grid-template-columns:270px 1fr 300px;flex:1;overflow:hidden;}
+.drop-btn{padding:3px 9px;border:1px dashed var(--border);border-radius:3px;font-size:10px;cursor:pointer;color:var(--dim);background:transparent;position:relative;}
+.drop-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+#dropStatus{font-size:9px;color:var(--accent3);}
+#modeLabel{font-size:9px;color:var(--warn);display:none;}
+
+/* MOBILE TABS */
+.mobile-tabs{display:none;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;}
+.mobile-tabs button{flex:1;padding:8px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;}
+.mobile-tabs button.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* DESKTOP LAYOUT */
+.main{display:grid;grid-template-columns:250px 1fr 280px;flex:1;overflow:hidden;}
 .panel{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .panel:last-child{border-right:none;border-left:1px solid var(--border);}
-.panel-header{padding:7px 12px;background:var(--bg2);border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-weight:600;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.panel-header .count{margin-left:auto;background:var(--bg3);padding:1px 6px;border-radius:10px;font-size:9px;color:var(--accent);}
-.search-wrap{padding:6px 8px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 7px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:10px;outline:none;transition:border-color 0.2s;}
+.panel-header{padding:6px 10px;background:var(--bg2);border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-weight:600;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.panel-header .count{margin-left:auto;background:var(--bg3);padding:1px 5px;border-radius:10px;font-size:8px;color:var(--accent);}
+.search-wrap{padding:5px 7px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:10px;outline:none;}
 .search-wrap input:focus{border-color:var(--accent);}
-.search-wrap input::placeholder{color:var(--text-dim);}
-.tree-container{overflow-y:auto;flex:1;padding:3px 0;}
-.tree-node{display:flex;align-items:center;padding:2px 6px;cursor:pointer;transition:background 0.1s;border-left:2px solid transparent;user-select:none;}
+.search-wrap input::placeholder{color:var(--dim);}
+.tree-container{overflow-y:auto;flex:1;padding:2px 0;}
+.tree-node{display:flex;align-items:center;padding:2px 5px;cursor:pointer;border-left:2px solid transparent;user-select:none;}
 .tree-node:hover{background:rgba(255,255,255,0.03);}
-.tree-node.selected{background:rgba(0,229,255,0.08);border-left-color:var(--accent);}
+.tree-node.selected{background:rgba(0,229,255,0.07);border-left-color:var(--accent);}
 .tree-node.present .node-name{color:var(--accent3);}
-.tree-toggle{width:13px;height:13px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:8px;flex-shrink:0;}
-.node-icon{font-size:9px;margin-right:4px;flex-shrink:0;}
+.tree-toggle{width:12px;height:12px;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:8px;flex-shrink:0;}
+.node-icon{font-size:8px;margin-right:3px;flex-shrink:0;}
 .node-name{font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.node-name.dim{color:var(--text-dim);}
-.node-count{margin-left:auto;background:var(--accent3);color:#000;font-size:8px;font-weight:700;padding:1px 4px;border-radius:8px;flex-shrink:0;}
+.node-name.dim{color:var(--dim);}
+.node-count{margin-left:auto;background:var(--accent3);color:#000;font-size:7px;font-weight:700;padding:1px 4px;border-radius:8px;flex-shrink:0;}
 .tree-indent{flex-shrink:0;}
 .center-panel{display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
-.filter-bar{padding:6px 10px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0;}
-.filter-btn{padding:2px 8px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.15s;}
+.filter-bar{padding:5px 8px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0;}
+.filter-btn{padding:2px 7px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.15s;}
 .filter-btn:hover{border-color:var(--accent);color:var(--accent);}
 .filter-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600;}
-.entity-grid{flex:1;overflow-y:auto;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:5px;align-content:start;}
-.entity-card{background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:7px 9px;cursor:pointer;transition:all 0.15s;}
+.entity-grid{flex:1;overflow-y:auto;padding:8px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px;align-content:start;}
+.entity-card{background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:6px 8px;cursor:pointer;transition:all 0.12s;}
 .entity-card:hover{border-color:var(--accent);}
-.entity-card.selected-card{border-color:var(--accent);}
 .entity-card.present-card{border-color:var(--accent3);}
 .entity-card.present-card .ec-name{color:var(--accent3);}
-.ec-name{font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ec-parent{font-size:8px;color:var(--text-dim);}
-.ec-count{display:inline-block;margin-top:3px;background:var(--accent3);color:#000;font-size:8px;font-weight:700;padding:1px 5px;border-radius:8px;}
-.center-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:12px;text-align:center;flex-direction:column;gap:6px;}
-.center-empty .big{font-family:'Syne',sans-serif;font-size:36px;color:var(--border);}
-.detail-content{flex:1;overflow-y:auto;padding:12px;}
-.detail-empty{color:var(--text-dim);font-size:11px;text-align:center;margin-top:30px;line-height:1.8;}
-.detail-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:3px;}
-.detail-parent-chain{font-size:9px;color:var(--text-dim);margin-bottom:10px;}
+.ec-name{font-size:10px;color:var(--text);font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ec-parent{font-size:8px;color:var(--dim);}
+.ec-count{display:inline-block;margin-top:2px;background:var(--accent3);color:#000;font-size:7px;font-weight:700;padding:1px 4px;border-radius:8px;}
+.center-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:11px;text-align:center;flex-direction:column;gap:5px;}
+.center-empty .big{font-family:'Syne',sans-serif;font-size:32px;color:var(--border);}
+.detail-content{flex:1;overflow-y:auto;padding:10px;}
+.detail-empty{color:var(--dim);font-size:10px;text-align:center;margin-top:24px;line-height:1.8;}
+.detail-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:2px;}
+.detail-parent-chain{font-size:8px;color:var(--dim);margin-bottom:8px;}
 .detail-parent-chain a{color:var(--accent2);cursor:pointer;}
-.detail-section{margin-bottom:10px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;overflow:hidden;}
-.detail-section-title{padding:5px 9px;background:var(--bg3);font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;border-bottom:1px solid var(--border);}
-.detail-section-body{padding:7px 9px;font-size:10px;line-height:1.7;color:var(--text);}
-.instance-badge{display:inline-block;background:var(--warn);color:#fff;padding:3px 10px;border-radius:3px;font-weight:700;font-size:12px;margin-bottom:10px;}
+.detail-section{margin-bottom:8px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;overflow:hidden;}
+.detail-section-title{padding:4px 8px;background:var(--bg3);font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;border-bottom:1px solid var(--border);}
+.detail-section-body{padding:6px 8px;font-size:10px;line-height:1.7;color:var(--text);}
+.instance-badge{display:inline-block;background:var(--warn);color:#fff;padding:2px 8px;border-radius:3px;font-weight:700;font-size:11px;margin-bottom:8px;}
 .child-link{display:block;color:var(--accent2);cursor:pointer;font-size:10px;padding:2px 0;}
-.child-link:hover{color:var(--accent);}
-.doc-link{display:inline-block;margin-top:6px;padding:3px 8px;border:1px solid var(--accent2);border-radius:3px;color:var(--accent2);font-size:9px;text-decoration:none;}
-.doc-link:hover{background:var(--accent2);color:white;}
-#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-dim);flex-direction:column;gap:12px;z-index:50;}
-.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+.doc-link{display:inline-block;margin-top:5px;padding:3px 7px;border:1px solid var(--accent2);border-radius:3px;color:var(--accent2);font-size:9px;text-decoration:none;}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--dim);flex-direction:column;gap:10px;z-index:50;}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-.back-link{font-size:10px;color:var(--dim);text-decoration:none;padding:4px 8px;border:1px solid var(--border2,var(--border));border-radius:3px;transition:all 0.15s;white-space:nowrap;}
-.back-link:hover{color:var(--accent,#00e5ff);border-color:var(--accent,#00e5ff);}
-#togglePalette{position:absolute;top:60px;left:16px;z-index:20;background:rgba(11,15,24,0.92);border:1px solid var(--border2,var(--border));border-radius:3px;color:var(--dim,#5a7080);font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 8px;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.15s;}
-#togglePalette:hover{color:var(--accent,#00e5ff);border-color:var(--accent,#00e5ff);}
-#controls.hidden{display:none!important;}
+/* RESPONSIVE */
+@media(max-width:640px){
+  .mobile-tabs{display:flex;}
+  .main{grid-template-columns:1fr;grid-template-rows:1fr;}
+  .panel,.center-panel{display:none;}
+  .panel.mobile-active,.center-panel.mobile-active{display:flex;}
+  .entity-grid{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body>
-<div id="loading"><div class="spinner"></div>Chargement du schéma IFC...</div>
+<div id="loading"><div class="spinner"></div>Chargement...</div>
 <header>
   <a class="back-link" href="index.html">← Accueil</a>
   <div class="logo">IFC<span>/</span>Explorer</div>
   <div class="mode-tabs">
     <button class="mode-tab active" id="tabSchema" onclick="setMode('schema')">Schéma</button>
-    <button class="mode-tab" id="tabIfc" onclick="setMode('ifc')">Fichier IFC</button>
+    <button class="mode-tab" id="tabIfc" onclick="setMode('ifc')">IFC</button>
   </div>
   <select class="schema-select" id="schemaSelect" onchange="onSchemaChange()">
-    <option value="ifc2x3">IFC 2x3</option>
-    <option value="ifc4">IFC 4</option>
-    <option value="ifc4x3" selected>IFC 4.3</option>
+    <option value="ifc2x3">2x3</option>
+    <option value="ifc4">IFC4</option>
+    <option value="ifc4x3" selected>4.3</option>
   </select>
-  <div class="drop-inline" id="dropZone">⬡ Ouvrir .ifc<input type="file" id="fileInput" accept=".ifc"></div>
+  <div class="drop-btn">⬡ .ifc<input type="file" id="fileInput" accept=".ifc"></div>
   <div id="dropStatus"></div>
-  <div id="modeLabel">◆ Mode IFC actif</div>
+  <div id="modeLabel">◆ IFC</div>
 </header>
+
+<div class="mobile-tabs" id="mobileTabs">
+  <button class="active" onclick="mobilePanel('tree')">Hiérarchie</button>
+  <button onclick="mobilePanel('catalog')">Catalogue</button>
+  <button onclick="mobilePanel('detail')">Détail</button>
+</div>
+
 <div class="main">
-  <div class="panel">
+  <div class="panel mobile-active" id="panelTree">
     <div class="panel-header">Hiérarchie<div class="count" id="tree-count">–</div></div>
     <div class="search-wrap"><input type="text" id="treeSearch" placeholder="Rechercher..."></div>
     <div class="tree-container" id="treeContainer"></div>
   </div>
-  <div class="center-panel">
+  <div class="center-panel" id="panelCatalog">
     <div class="panel-header">Catalogue<div class="count" id="catalog-count">–</div></div>
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all">Tout</button>
-      <button class="filter-btn" data-filter="present">Présents IFC</button>
+      <button class="filter-btn" data-filter="present">IFC</button>
       <button class="filter-btn" data-filter="product">Produits</button>
       <button class="filter-btn" data-filter="relation">Relations</button>
-      <button class="filter-btn" data-filter="property">Propriétés</button>
     </div>
     <div class="center-empty" id="centerEmpty"><div class="big">⬡</div><div>Sélectionner une entité</div></div>
     <div class="entity-grid" id="entityGrid" style="display:none"></div>
   </div>
-  <div class="panel">
+  <div class="panel" id="panelDetail">
     <div class="panel-header">Détail</div>
     <div class="detail-content" id="detailContent"><div class="detail-empty">Cliquer sur une entité</div></div>
   </div>
 </div>
+
 <script>
 const SCHEMA_URLS={ifc2x3:'schema-ifc2x3.json',ifc4:'schema-ifc4.json',ifc4x3:'schema-ifc4x3.json'};
 const schemaCache={};
 let mode='schema',currentSchema='ifc4x3',modelEntities={};
 let nodes=[],byCode={},childrenMap={},expandedNodes=new Set(),selectedCode=null,currentFilter='all',searchQuery='';
 
+function isMobile(){return window.innerWidth<=640;}
+
+function mobilePanel(p){
+  document.querySelectorAll('.mobile-tabs button').forEach((b,i)=>b.classList.toggle('active',['tree','catalog','detail'][i]===p));
+  document.getElementById('panelTree').classList.toggle('mobile-active',p==='tree');
+  document.getElementById('panelCatalog').classList.toggle('mobile-active',p==='catalog');
+  document.getElementById('panelDetail').classList.toggle('mobile-active',p==='detail');
+}
+
 async function loadSchemaData(v){
   if(schemaCache[v])return schemaCache[v];
   document.getElementById('loading').style.display='flex';
-  const resp=await fetch(SCHEMA_URLS[v]);
-  const data=await resp.json();
-  schemaCache[v]=data;
-  document.getElementById('loading').style.display='none';
-  return data;
+  const r=await fetch(SCHEMA_URLS[v]);const d=await r.json();
+  schemaCache[v]=d;document.getElementById('loading').style.display='none';return d;
 }
-
 function buildIndex(ns){
   nodes=ns;byCode={};childrenMap={};
   ns.forEach(n=>{byCode[n.id]=n;if(!childrenMap[n.id])childrenMap[n.id]=[];if(n.parent){if(!childrenMap[n.parent])childrenMap[n.parent]=[];if(!childrenMap[n.parent].includes(n.id))childrenMap[n.parent].push(n.id);}});
@@ -147,9 +167,9 @@ function buildIndex(ns){
   getRoots().forEach(r=>{expandedNodes.add(r);(childrenMap[r]||[]).forEach(c=>expandedNodes.add(c));});
 }
 function getRoots(){return nodes.filter(n=>!n.parent||!byCode[n.parent]).map(n=>n.id);}
-function isPresent(code){return !!modelEntities[code.toUpperCase()];}
-function getCount(code){return modelEntities[code.toUpperCase()]||0;}
-function hasDescendantPresent(code){if(isPresent(code))return true;return(childrenMap[code]||[]).some(c=>hasDescendantPresent(c));}
+function isPresent(c){return !!modelEntities[c.toUpperCase()];}
+function getCount(c){return modelEntities[c.toUpperCase()]||0;}
+function hasDP(code){if(isPresent(code))return true;return(childrenMap[code]||[]).some(c=>hasDP(c));}
 
 async function setMode(m){
   mode=m;
@@ -157,65 +177,47 @@ async function setMode(m){
   document.getElementById('tabIfc').classList.toggle('active',m==='ifc');
   document.getElementById('schemaSelect').disabled=m==='ifc';
   document.getElementById('modeLabel').style.display=m==='ifc'?'block':'none';
-  if(m==='schema'){await loadSchema(currentSchema);}
-  else{if(!Object.keys(modelEntities).length){alert('Charger un fichier IFC d\'abord.');setMode('schema');return;}await buildIfcMode();}
+  if(m==='schema')await loadSchema(currentSchema);
+  else{if(!Object.keys(modelEntities).length){alert('Charger un .ifc d\'abord');setMode('schema');return;}await buildIfcMode();}
 }
 async function onSchemaChange(){currentSchema=document.getElementById('schemaSelect').value;if(mode==='schema')await loadSchema(currentSchema);}
 async function loadSchema(v){const ns=await loadSchemaData(v);buildIndex(ns);selectedCode=null;renderTree();renderDetail(null);}
 async function buildIfcMode(){
-  const ref=await loadSchemaData(currentSchema);
-  const tmpByCode={};ref.forEach(n=>tmpByCode[n.id]=n);
-  const keepCodes=new Set();
-  Object.keys(modelEntities).forEach(code=>{let cur=code;while(cur&&tmpByCode[cur]){keepCodes.add(cur);cur=tmpByCode[cur].parent;}});
-  buildIndex(ref.filter(n=>keepCodes.has(n.id)));
-  selectedCode=null;renderTree();renderDetail(null);
+  const ref=await loadSchemaData(currentSchema);const tmp={};ref.forEach(n=>tmp[n.id]=n);
+  const keep=new Set();
+  Object.keys(modelEntities).forEach(c=>{let cur=c;while(cur&&tmp[cur]){keep.add(cur);cur=tmp[cur].parent;}});
+  buildIndex(ref.filter(n=>keep.has(n.id)));selectedCode=null;renderTree();renderDetail(null);
 }
 
 function renderTree(){
-  const container=document.getElementById('treeContainer');
-  const q=searchQuery.toLowerCase();
-  const allNodes=Object.values(byCode);
+  const container=document.getElementById('treeContainer');const q=searchQuery.toLowerCase();const all=Object.values(byCode);
   if(q){
-    const matches=allNodes.filter(n=>n.id.toLowerCase().includes(q));
-    document.getElementById('tree-count').textContent=matches.length;
-    container.innerHTML=matches.map(n=>{const present=isPresent(n.id);const cnt=getCount(n.id);return`<div class="tree-node ${selectedCode===n.id?'selected':''} ${present?'present':''}" onclick="selectNode('${n.id}')"><div class="tree-indent" style="width:8px"></div><div class="node-icon">${present?'◆':'◇'}</div><div class="node-name">${n.id}</div>${cnt?`<div class="node-count">${cnt}</div>`:''}</div>`;}).join('');
-    return;
+    const m=all.filter(n=>n.id.toLowerCase().includes(q));
+    document.getElementById('tree-count').textContent=m.length;
+    container.innerHTML=m.map(n=>{const p=isPresent(n.id);const c=getCount(n.id);return`<div class="tree-node ${selectedCode===n.id?'selected':''} ${p?'present':''}" onclick="selectNode('${n.id}')"><div class="tree-indent" style="width:8px"></div><div class="node-icon">${p?'◆':'◇'}</div><div class="node-name">${n.id}</div>${c?`<div class="node-count">${c}</div>`:''}</div>`;}).join('');return;
   }
-  document.getElementById('tree-count').textContent=allNodes.length;
+  document.getElementById('tree-count').textContent=all.length;
   let html='';
-  function renderNode(code,depth){
-    const n=byCode[code];if(!n)return;
-    const kids=childrenMap[code]||[];const isExp=expandedNodes.has(code);
-    const present=isPresent(code);const cnt=getCount(code);const hasKids=kids.length>0;
-    html+=`<div class="tree-node ${selectedCode===code?'selected':''} ${present?'present':''}" onclick="selectNode('${code}')">
-      <div class="tree-indent" style="width:${depth*11}px"></div>
-      <div class="tree-toggle" onclick="event.stopPropagation();toggleNode('${code}')">${hasKids?(isExp?'▾':'▸'):''}</div>
-      <div class="node-icon">${present?'◆':(hasDescendantPresent(code)?'◈':'◇')}</div>
-      <div class="node-name ${!hasKids&&!present?'dim':''}">${code}</div>
-      ${cnt?`<div class="node-count">${cnt}</div>`:''}
+  function rn(code,depth){
+    const n=byCode[code];if(!n)return;const kids=childrenMap[code]||[];const isE=expandedNodes.has(code);
+    const p=isPresent(code);const c=getCount(code);const hk=kids.length>0;
+    html+=`<div class="tree-node ${selectedCode===code?'selected':''} ${p?'present':''}" onclick="selectNode('${code}')">
+      <div class="tree-indent" style="width:${depth*10}px"></div>
+      <div class="tree-toggle" onclick="event.stopPropagation();toggleNode('${code}')">${hk?(isE?'▾':'▸'):''}</div>
+      <div class="node-icon">${p?'◆':(hasDP(code)?'◈':'◇')}</div>
+      <div class="node-name ${!hk&&!p?'dim':''}">${code}</div>
+      ${c?`<div class="node-count">${c}</div>`:''}
     </div>`;
-    if(hasKids&&isExp)kids.forEach(k=>renderNode(k,depth+1));
+    if(hk&&isE)kids.forEach(k=>rn(k,depth+1));
   }
-  getRoots().forEach(r=>renderNode(r,0));
-  container.innerHTML=html;
+  getRoots().forEach(r=>rn(r,0));container.innerHTML=html;
 }
 function toggleNode(code){expandedNodes.has(code)?expandedNodes.delete(code):expandedNodes.add(code);renderTree();}
-function selectNode(code){selectedCode=code;renderTree();renderDetail(code);showGridForNode(code);}
-function isDescendantOf(code,anc){let cur=byCode[code];while(cur&&cur.parent){if(cur.parent===anc)return true;cur=byCode[cur.parent];}return false;}
-
-function renderGrid(filter){
-  filter=filter||currentFilter;
-  const grid=document.getElementById('entityGrid');const empty=document.getElementById('centerEmpty');
-  let items=Object.values(byCode);
-  if(filter==='present')items=items.filter(n=>isPresent(n.id));
-  else if(filter==='product')items=items.filter(n=>n.id==='IfcProduct'||isDescendantOf(n.id,'IfcProduct'));
-  else if(filter==='relation')items=items.filter(n=>n.id==='IfcRelationship'||isDescendantOf(n.id,'IfcRelationship'));
-  else if(filter==='property')items=items.filter(n=>n.id==='IfcPropertyDefinition'||isDescendantOf(n.id,'IfcPropertyDefinition'));
-  if(!items.length&&filter==='present'&&!Object.keys(modelEntities).length){empty.style.display='flex';grid.style.display='none';empty.innerHTML='<div class="big">◇</div><div>Charger un .ifc</div>';return;}
-  empty.style.display='none';grid.style.display='grid';
-  document.getElementById('catalog-count').textContent=items.length;
-  grid.innerHTML=items.map(n=>{const present=isPresent(n.id);const cnt=getCount(n.id);return`<div class="entity-card ${selectedCode===n.id?'selected-card':''} ${present?'present-card':''}" onclick="selectNode('${n.id}')"><div class="ec-name">${n.id}</div><div class="ec-parent">↳ ${n.parent||'racine'}</div>${cnt?`<div class="ec-count">${cnt} instances</div>`:''}</div>`;}).join('');
+function selectNode(code){
+  selectedCode=code;renderTree();renderDetail(code);showGridForNode(code);
+  if(isMobile())mobilePanel('detail');
 }
+function isDescOf(code,anc){let cur=byCode[code];while(cur&&cur.parent){if(cur.parent===anc)return true;cur=byCode[cur.parent];}return false;}
 function showGridForNode(code){
   const kids=childrenMap[code]||[];
   const items=kids.length>0?kids.map(k=>byCode[k]).filter(Boolean):[byCode[code]].filter(Boolean);
@@ -223,53 +225,42 @@ function showGridForNode(code){
   if(!items.length)return;
   empty.style.display='none';grid.style.display='grid';
   document.getElementById('catalog-count').textContent=items.length;
-  grid.innerHTML=items.map(n=>{const present=isPresent(n.id);const cnt=getCount(n.id);const kk=(childrenMap[n.id]||[]).length;return`<div class="entity-card ${selectedCode===n.id?'selected-card':''} ${present?'present-card':''}" onclick="selectNode('${n.id}')"><div class="ec-name">${n.id}</div><div class="ec-parent">${kk} enfants · ${n.parent||'racine'}</div>${cnt?`<div class="ec-count">${cnt} instances</div>`:''}</div>`;}).join('');
+  grid.innerHTML=items.map(n=>{const p=isPresent(n.id);const c=getCount(n.id);const kk=(childrenMap[n.id]||[]).length;return`<div class="entity-card ${selectedCode===n.id?'selected-card':''} ${p?'present-card':''}" onclick="selectNode('${n.id}')"><div class="ec-name">${n.id}</div><div class="ec-parent">${kk} enfants</div>${c?`<div class="ec-count">${c} inst.</div>`:''}</div>`;}).join('');
 }
-function buildParentChain(code){const chain=[];let cur=byCode[code];while(cur&&cur.parent){chain.unshift(cur.parent);cur=byCode[cur.parent];}return chain;}
+function renderGrid(filter){
+  filter=filter||currentFilter;const grid=document.getElementById('entityGrid');const empty=document.getElementById('centerEmpty');
+  let items=Object.values(byCode);
+  if(filter==='present')items=items.filter(n=>isPresent(n.id));
+  else if(filter==='product')items=items.filter(n=>n.id==='IfcProduct'||isDescOf(n.id,'IfcProduct'));
+  else if(filter==='relation')items=items.filter(n=>n.id==='IfcRelationship'||isDescOf(n.id,'IfcRelationship'));
+  if(!items.length&&filter==='present'){empty.style.display='flex';grid.style.display='none';empty.innerHTML='<div class="big">◇</div><div>Charger un .ifc</div>';return;}
+  empty.style.display='none';grid.style.display='grid';
+  document.getElementById('catalog-count').textContent=items.length;
+  grid.innerHTML=items.map(n=>{const p=isPresent(n.id);const c=getCount(n.id);return`<div class="entity-card ${p?'present-card':''}" onclick="selectNode('${n.id}')"><div class="ec-name">${n.id}</div><div class="ec-parent">↳${n.parent||'racine'}</div>${c?`<div class="ec-count">${c} inst.</div>`:''}</div>`;}).join('');
+}
+function bpChain(code){const chain=[];let cur=byCode[code];while(cur&&cur.parent){chain.unshift(cur.parent);cur=byCode[cur.parent];}return chain;}
 function renderDetail(code){
   const d=document.getElementById('detailContent');
   if(!code||!byCode[code]){d.innerHTML='<div class="detail-empty">Cliquer sur une entité</div>';return;}
-  const n=byCode[code];const chain=buildParentChain(code);const kids=childrenMap[code]||[];const cnt=getCount(code);
-  const docUrl=currentSchema==='ifc2x3'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifckernel/lexical/${code.toLowerCase()}.htm`:currentSchema==='ifc4'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${code.toLowerCase()}.htm`:`https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${code}.htm`;
+  const n=byCode[code];const chain=bpChain(code);const kids=childrenMap[code]||[];const cnt=getCount(code);
+  const doc=currentSchema==='ifc2x3'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifckernel/lexical/${code.toLowerCase()}.htm`:currentSchema==='ifc4'?`https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${code.toLowerCase()}.htm`:`https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${code}.htm`;
   d.innerHTML=`<div class="detail-title">${code}</div><div class="detail-parent-chain">${chain.map(p=>`<a onclick="selectNode('${p}')">${p}</a>`).join(' › ')}${chain.length?' › ':''}${code}</div>
     ${cnt?`<div class="instance-badge">◆ ${cnt} instance${cnt>1?'s':''}</div>`:''}
-    ${n.def?`<div class="detail-section"><div class="detail-section-title">Définition</div><div class="detail-section-body">${n.def.slice(0,300)}…</div></div>`:''}
+    ${n.def?`<div class="detail-section"><div class="detail-section-title">Définition</div><div class="detail-section-body">${n.def.slice(0,280)}…</div></div>`:''}
     ${kids.length?`<div class="detail-section"><div class="detail-section-title">Sous-types (${kids.length})</div><div class="detail-section-body">${kids.map(k=>{const kc=getCount(k);return`<a class="child-link" onclick="selectNode('${k}')">${isPresent(k)?'◆':'◇'} ${k}${kc?` <span style="color:var(--accent3)">(${kc})</span>`:''}</a>`;}).join('')}</div></div>`:''}
     ${n.parent&&byCode[n.parent]?`<div class="detail-section"><div class="detail-section-title">Parent</div><div class="detail-section-body"><a class="child-link" onclick="selectNode('${n.parent}')">↑ ${n.parent}</a></div></div>`:''}
-    <a href="${docUrl}" target="_blank" class="doc-link">↗ Documentation officielle</a>`;
+    <a href="${doc}" target="_blank" class="doc-link">↗ Documentation</a>`;
 }
 document.querySelectorAll('.filter-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentFilter=btn.dataset.filter;renderGrid(currentFilter);});});
 document.getElementById('treeSearch').addEventListener('input',e=>{searchQuery=e.target.value.trim();renderTree();});
-const dropZone=document.getElementById('dropZone');
-const fileInput=document.getElementById('fileInput');
-dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over');});
-dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.ifc'))loadIFC(f);});
-fileInput.addEventListener('change',e=>{if(e.target.files[0])loadIFC(e.target.files[0]);});
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])loadIFC(e.target.files[0]);});
 function loadIFC(file){
-  document.getElementById('dropStatus').textContent='Lecture...';
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const header=e.target.result.slice(0,500);
-    const vMatch=header.match(/IFC2X3|IFC4X3|IFC4/i);
-    if(vMatch){const v=vMatch[0].toUpperCase();currentSchema=v==='IFC2X3'?'ifc2x3':v==='IFC4X3'?'ifc4x3':'ifc4';document.getElementById('schemaSelect').value=currentSchema;}
-    const rx=/=#\d+=\s*(IFC[A-Z0-9]+)\s*\(/gi;let m;modelEntities={};
-    while((m=rx.exec(e.target.result))!==null){const k=m[1].toUpperCase();modelEntities[k]=(modelEntities[k]||0)+1;}
-    document.getElementById('dropStatus').textContent=`✓ ${Object.keys(modelEntities).length} types`;
-    setMode('ifc');
-  };
-  reader.readAsText(file);
+  document.getElementById('dropStatus').textContent='...';const r=new FileReader();
+  r.onload=e=>{const h=e.target.result.slice(0,500),v=h.match(/IFC2X3|IFC4X3|IFC4/i);if(v){const vv=v[0].toUpperCase();currentSchema=vv==='IFC2X3'?'ifc2x3':vv==='IFC4X3'?'ifc4x3':'ifc4';document.getElementById('schemaSelect').value=currentSchema;}
+    const rx=/=#\d+=\s*(IFC[A-Z0-9]+)\s*\(/gi;let m;modelEntities={};while((m=rx.exec(e.target.result))!==null){const k=m[1].toUpperCase();modelEntities[k]=(modelEntities[k]||0)+1;}
+    document.getElementById('dropStatus').textContent=`✓${Object.keys(modelEntities).length}`;setMode('ifc');};r.readAsText(file);
 }
 loadSchema('ifc4x3');
-
-function togglePalette() {
-  var c = document.getElementById('controls');
-  var btn = document.getElementById('togglePalette');
-  if (!c) return;
-  c.classList.toggle('hidden');
-  btn.innerHTML = c.classList.contains('hidden') ? '&#8250; Palette' : '&#8249; Palette';
-}
-
 </script>
 </body>
 </html>
