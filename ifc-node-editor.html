@@ -1,4 +1,29 @@
 <script>
+
+const THEME_KEY = 'ifc_theme';
+
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'system') {
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+  } else {
+    root.setAttribute('data-theme', theme);
+  }
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+  sessionStorage.setItem(THEME_KEY, theme);
+}
+
+function initTheme() {
+  const saved = sessionStorage.getItem(THEME_KEY) || 'system';
+  applyTheme(saved);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (sessionStorage.getItem(THEME_KEY) === 'system') applyTheme('system');
+  });
+}
+
 (function(){
   var t=sessionStorage.getItem('ifc_theme')||'system';
   var dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
@@ -516,31 +541,10 @@ table.catalogue tr.selected td{background:rgba(0,212,240,0.08);}
   </div>
 </div>
 
-<script>const THEME_KEY = 'ifc_theme';
+<script>
 
-function applyTheme(theme) {
-  const root = document.documentElement;
-  if (theme === 'system') {
-    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.setAttribute('data-theme', dark ? 'dark' : 'light');
-  } else {
-    root.setAttribute('data-theme', theme);
-  }
-  // Marquer le bouton correspondant à la sélection réelle (system/dark/light)
-  document.querySelectorAll('.theme-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.theme === theme);
-  });
-  sessionStorage.setItem(THEME_KEY, theme);
-}
 
-function initTheme() {
-  const saved = sessionStorage.getItem('ifc_theme') || 'system';
-  // Appliquer immédiatement
-  applyTheme(saved);
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (sessionStorage.getItem('ifc_theme') === 'system') applyTheme('system');
-  });
-}
+
 
 
 
@@ -795,6 +799,7 @@ svg.addEventListener('dblclick',function(e){
   var matches=allNodes.filter(function(n){return n.id.toLowerCase().startsWith(q.toLowerCase());}).slice(0,1);
   if(matches.length)addNodeToGraph(matches[0].id,{x:pt.x-NODE_W/2,y:pt.y-NODE_H/2});
   else alert('Non trouvé: '+q);
+});
 
 svg.addEventListener('touchstart',e=>{if(e.touches.length===1){panStart={x:e.touches[0].clientX,y:e.touches[0].clientY};panVB={...viewBox};}},{passive:true});
 svg.addEventListener('touchmove',e=>{if(e.touches.length===1&&panStart){const r=svg.getBoundingClientRect();viewBox.x=panVB.x-(e.touches[0].clientX-panStart.x)*(panVB.w/r.width);viewBox.y=panVB.y-(e.touches[0].clientY-panStart.y)*(panVB.h/r.height);updateVB();e.preventDefault();}},{passive:false});
