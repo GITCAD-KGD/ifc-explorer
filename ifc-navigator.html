@@ -386,6 +386,16 @@ body, .tree-node, .node-name, td, .filter-label,
 .leg-dot-child    { background: #00cc66 !important; }
 .leg-dot-present  { background: #ff3377 !important; }
 
+
+/* Header textes lisibles */
+.back-link, .view-btn:not(.current), .mode-tab:not(.active),
+.schema-select, .drop-btn, #dropStatus, #backBtn {
+  color: var(--text) !important;
+  font-weight: 600;
+}
+.crumb:not(.current) { color: var(--text) !important; font-weight: 600; }
+.crumb.current { color: var(--bright) !important; font-weight: 700; }
+
 </style>
 </head>
 <body>
@@ -774,8 +784,8 @@ function renderGraph(code){
     .force('collision',d3.forceCollide().radius(d=>nRadius(d)+26))
     .alphaDecay(0.025).velocityDecay(0.45);
   const link=mainG.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke',d=>d.type==='parent'?'rgba(136,102,255,0.5)':'rgba(74,104,136,0.4)')
-    .attr('stroke-width',d=>d.type==='parent'?1.5:1)
+    .attr('stroke',d=>d.type==='parent'?'#6655cc':'#4a7090')
+    .attr('stroke-width',d=>d.type==='parent'?2:1.5)
     .attr('stroke-dasharray',d=>d.type==='parent'?'4,3':null);
   const node=mainG.append('g').selectAll('g').data(nodes).join('g').style('cursor',d=>d.role!=='center'?'pointer':'default')
     .call(d3.drag()
@@ -786,7 +796,7 @@ function renderGraph(code){
   node.filter(d=>d.role==='center').append('circle').attr('r',40).attr('fill','none').attr('stroke','#00e5ff').attr('stroke-width',0.5).attr('opacity',0.2).attr('stroke-dasharray','3,4');
   node.append('circle').attr('r',d=>nRadius(d)).attr('fill',d=>nColor(d,d.role)).attr('fill-opacity',d=>d.role==='center'?0.15:0.18).attr('stroke',d=>nColor(d,d.role)).attr('stroke-width',d=>d.role==='center'?2:1.5).attr('filter',d=>d.role==='center'?'url(#glow)':null);
   node.filter(d=>d.role==='child').append('text').text(d=>{const k=(childrenMap[d.id]||[]).length;return k>0?k:'';}).attr('text-anchor','middle').attr('dy','-1px').attr('font-family','JetBrains Mono,monospace').attr('font-size','8px').attr('fill',d=>nColor(d,d.role)).attr('pointer-events','none');
-  node.append('text').text(d=>d.id).attr('text-anchor','middle').attr('dy',d=>nRadius(d)+13).attr('font-family','JetBrains Mono,monospace').attr('font-size',d=>d.role==='center'?'11px':'9px').attr('font-weight',d=>d.role==='center'?'600':'400').attr('fill',d=>d.role==='center'?'#00e5ff':d.role==='parent'?'#9c7dff':'#5a8070').attr('pointer-events','none');
+  node.append('text').text(d=>d.id).attr('text-anchor','middle').attr('dy',d=>nRadius(d)+13).attr('font-family','JetBrains Mono,monospace').attr('font-size',d=>d.role==='center'?'11px':'9px').attr('font-weight',d=>d.role==='center'?'600':'400').attr('fill',d=>d.role==='center'?'#00d4f0':d.role==='parent'?'#aa88ff':'#8ab4cc').attr('pointer-events','none');
   node.filter(d=>modelEntities[d.id.toUpperCase()]).append('text').text(d=>`◆${modelEntities[d.id.toUpperCase()]}`).attr('text-anchor','middle').attr('dy',d=>nRadius(d)+24).attr('font-family','JetBrains Mono,monospace').attr('font-size','8px').attr('fill','#ff4081').attr('pointer-events','none');
   node.filter(d=>d.role!=='center').on('click',(event,d)=>{event.stopPropagation();navigateTo(d.id);if(isMobile())mobileView('detail');});
   node.on('mouseover',(e,d)=>d3.select(e.currentTarget).select('circle').attr('fill-opacity',0.4)).on('mouseout',(e,d)=>d3.select(e.currentTarget).select('circle').attr('fill-opacity',d.role==='center'?0.15:0.18));
