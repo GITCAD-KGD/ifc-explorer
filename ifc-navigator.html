@@ -15,7 +15,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Syne:wght@400;700;800&display=swap');
-:root{--bg:#07090f;--panel:#0c1018;--border:#161e2c;--border2:#1e2d42;--text:#7a9ab8;--bright:#cde0f5;--dim:#283849;--cyan:#00e5ff;--purple:#7c4dff;--green:#00e676;--pink:#ff4081;}
+:root{--bg:#07090f;--panel:#0c1018;--border:#161e2c;--border2:#1e2d42;--text:#7a9ab8;--bright:#cde0f5;--dim:#4a6888;--cyan:#00e5ff;--purple:#7c4dff;--green:#00e676;--pink:#ff4081;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);font-family:'JetBrains Mono',monospace;color:var(--text);overflow:hidden;width:100vw;height:100vh;display:flex;flex-direction:column;}
 
@@ -75,7 +75,7 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 .instance-badge{display:inline-block;background:var(--pink);color:#fff;padding:2px 8px;border-radius:3px;font-weight:700;font-size:11px;margin-bottom:8px;}
 
 /* LEGEND */
-#legend{position:absolute;bottom:12px;left:12px;background:rgba(12,16,24,0.9);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;font-size:9px;z-index:10;backdrop-filter:blur(8px);}
+#legend{position:absolute;bottom:12px;left:12px;background:var(--panel);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;font-size:9px;z-index:10;}
 .leg-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
@@ -133,7 +133,7 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
   --border2:#223050;
   --text:   #7a9ab8;
   --bright: #cde0f5;
-  --dim:    #2d4560;
+  --dim:    #4a6888;
   --cyan:   #00d4f0;
   --purple: #8866ff;
   --green:  #00cc66;
@@ -323,6 +323,17 @@ body, .tree-node, .node-name, td, .filter-label,
 .dp-subtitle, .rp-sub {
   color: var(--dim) !important;
 }
+
+
+/* ===== LISIBILITÉ PANNEAU DROIT ===== */
+#detailPanel .dp-section-body,
+#detailPanel .rp-section-body,
+.dp-body, .rp-body,
+.dp-body * { color: var(--text); }
+.dp-body span[style*="color:var(--dim)"],
+.rp-body span[style*="color:var(--dim)"] { color: var(--dim) !important; }
+/* Légende texte */
+#legend .leg-row { color: var(--text); font-weight: 600; }
 
 </style>
 </head>
@@ -782,7 +793,7 @@ async function updateDetail(code) {
     <div class="dp-section">
       <div class="dp-section-title">Hiérarchie</div>
       <div class="dp-section-body">
-        ${n.parent && byCode[n.parent] ? `Parent : <span style="color:#9c7dff;cursor:pointer" onclick="navigateTo('${n.parent}')">${n.parent}</span><br>` : '<span style="color:var(--dim)">Racine</span><br>'}
+        ${n.parent && byCode[n.parent] ? `Parent : <span style="color:#9c7dff;cursor:pointer" onclick="navigateTo('${n.parent}')">${n.parent}</span><br>` : '<span style="color:var(--text)">Racine</span><br>'}
         ${kids.length} sous-type${kids.length !== 1 ? 's' : ''}
       </div>
     </div>
