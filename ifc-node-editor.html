@@ -1,30 +1,60 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script>
+(function(){
+  var t=sessionStorage.getItem('ifc_theme')||'system';
+  var dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.setAttribute('data-theme', t==='system'?(dark?'dark':'light'):t);
+})();
+</script>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IFC Node Editor</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Syne:wght@400;700;800&display=swap');
 
 /* ===== THEME ===== */
-:root,[data-theme="dark"]{
-  --bg:#0d1117;--bg2:#141b24;--bg3:#1a2332;
-  --panel:#111820;--border:#1e2d42;--border2:#263548;
-  --text:#a8c4e0;--bright:#ddeeff;--dim:#3d5470;
-  --cyan:#00d4f0;--purple:#8866ff;--green:#00cc66;
-  --pink:#ff3377;--orange:#ff8800;--yellow:#ffcc00;
-  --accent:#00d4f0;--accent2:#8866ff;--accent3:#00cc66;
-  --warn:#ff3377;--text-dim:#3d5470;--text-bright:#ddeeff;
+:root, [data-theme="dark"] {
+  --bg:     #0a0e15;
+  --bg2:    #111820;
+  --bg3:    #18222e;
+  --panel:  #0e1520;
+  --border: #1a2840;
+  --border2:#223050;
+  --text:   #7a9ab8;
+  --bright: #cde0f5;
+  --dim:    #4a6888;
+  --cyan:   #00d4f0;
+  --purple: #8866ff;
+  --green:  #00cc66;
+  --pink:   #ff3377;
+  --orange: #ff8800;
+  --accent: #00d4f0;
+  --accent2:#8866ff;
+  --accent3:#00cc66;
+  --warn:   #ff3377;
 }
-[data-theme="light"]{
-  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8edf4;
-  --panel:#ffffff;--border:#c0d0e0;--border2:#a0b8cc;
-  --text:#244060;--bright:#0a1e30;--dim:#7090a8;
-  --cyan:#0070a0;--purple:#4422aa;--green:#005522;
-  --pink:#aa0044;--orange:#883300;--yellow:#664400;
-  --accent:#0070a0;--accent2:#4422aa;--accent3:#005522;
-  --warn:#aa0044;--text-dim:#7090a8;--text-bright:#0a1e30;
+[data-theme="light"] {
+  --bg:     #eef2f7;
+  --bg2:    #ffffff;
+  --bg3:    #e4eaf2;
+  --panel:  #ffffff;
+  --border: #c0cfe0;
+  --border2:#a0bcd0;
+  --text:   #1a3a5c;
+  --bright: #0a1e2e;
+  --dim:    #6888a8;
+  --cyan:   #005580;
+  --purple: #3311aa;
+  --green:  #004422;
+  --pink:   #880033;
+  --orange: #773300;
+  --accent: #005580;
+  --accent2:#3311aa;
+  --accent3:#004422;
+  --warn:   #880033;
 }
 [data-theme="light"] body{background:var(--bg);}
 
@@ -35,7 +65,7 @@
 .theme-btn.active{background:var(--cyan);color:#000;font-weight:600;}
 
 /* ===== IFC LOAD MODAL ===== */
-#ifcModal{position:fixed;inset:0;background:rgba(6,8,16,0.92);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(8px);display:none;}
+#ifcModal{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(8px);display:none;}
 #ifcModal.visible{display:flex;}
 .ifc-modal-box{background:#0c1018;border:1px solid #1e2d42;border-radius:6px;padding:28px 32px;width:340px;text-align:center;}
 .ifc-modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#00e5ff;margin-bottom:6px;}
@@ -53,7 +83,7 @@
 .view-btn.current{background:rgba(0,229,255,0.1);border-color:#00e5ff;color:#00e5ff;}
 
 /* ===== SCHEMA LOADING OVERLAY ===== */
-#schemaLoading{position:fixed;inset:0;background:rgba(6,8,16,0.96);display:none;align-items:center;justify-content:center;z-index:900;flex-direction:column;gap:16px;backdrop-filter:blur(4px);}
+#schemaLoading{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:900;flex-direction:column;gap:16px;backdrop-filter:blur(4px);}
 #schemaLoading.visible{display:flex;}
 .schema-loading-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#00e5ff;}
 .schema-loading-sub{font-size:11px;color:#283849;}
@@ -146,6 +176,54 @@ table.catalogue tr.selected td{background:rgba(0,229,255,0.08);}
 .td-badge{display:inline-block;background:var(--green);color:#000;font-size:8px;font-weight:700;padding:1px 4px;border-radius:6px;}
 ::-webkit-scrollbar{width:3px;height:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 @media(max-width:768px){#leftPanel{width:0;}#rightPanel{width:0;}#bottomPanel{height:28px;}}
+.theme-btn[data-theme="dark"]::before  { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn[data-theme="light"]::before { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn[data-theme="system"]::before { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='3' width='20' height='14' rx='2'/%3E%3Cline x1='8' y1='21' x2='16' y2='21'/%3E%3Cline x1='12' y1='17' x2='12' y2='21'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='3' width='20' height='14' rx='2'/%3E%3Cline x1='8' y1='21' x2='16' y2='21'/%3E%3Cline x1='12' y1='17' x2='12' y2='21'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn { font-size:0; width:26px; height:26px; display:flex; align-items:center; justify-content:center; }
+
+/* ===== MOBILE NODE EDITOR ===== */
+@media(max-width:640px){
+  /* Header compact sur 2 lignes max */
+  .ribbon-row1{flex-wrap:wrap;padding:6px 10px;gap:6px;}
+  .ribbon-row2{overflow-x:auto;}
+  /* Masquer le contenu ribbon par défaut sur mobile */
+  .ribbon-content.active{max-height:0;overflow:hidden;padding:0;display:none;}
+  .ribbon-content.active.mobile-open{display:flex;max-height:200px;overflow-y:auto;}
+  /* Bouton toggle ribbon sur mobile */
+  #mobileRibbonToggle{
+    display:block;width:100%;background:var(--bg);border:none;border-bottom:1px solid var(--border);
+    color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px;cursor:pointer;
+    text-align:center;
+  }
+  /* Panneaux gauche/droit masqués */
+  #leftPanel,#rightPanel{width:0!important;overflow:hidden;}
+  /* Canvas plein écran */
+  #centerWrap{flex:1;}
+  /* Bottom panel réduit */
+  #bottomPanel{height:28px;}
+  /* h-sep disparaît */
+  .h-sep{display:none;}
+}
+@media(min-width:641px){
+  #mobileRibbonToggle{display:none;}
+}
+
+/* Textes lisibles */
+.rbtn{color:var(--text);font-weight:600;}
+.rbtn:hover{color:var(--cyan);}
+.ribbon-tab{color:var(--text);font-weight:600;}
+.ribbon-tab.active{color:var(--cyan);}
+.ribbon-group-label{color:var(--dim);}
+.ribbon-select{background:var(--bg);color:var(--text);border-color:var(--border2);}
+.ctrl-title{color:var(--dim);}
+.filter-label{color:var(--text);font-weight:600;}
+.lp-header,.bp-title{color:var(--text);font-weight:700;}
+.filter-check{border-color:var(--border2);}
+.filter-check.checked{background:var(--cyan);color:#000;}
+
 </style>
 </head>
 <body>
@@ -182,9 +260,9 @@ table.catalogue tr.selected td{background:rgba(0,229,255,0.08);}
     <div id="dropStatus"></div>
     <div class="ribbon-spacer"></div>
     <div class="theme-switcher">
-      <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre">🌙</button>
-      <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair">☀️</button>
-      <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système">🖥</button>
+      <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre"></button>
+      <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair"></button>
+      <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système"></button>
     </div>
     <div class="view-switcher">
       <a class="view-btn" href="ifc-navigator.html">Nav</a>
@@ -384,7 +462,7 @@ table.catalogue tr.selected td{background:rgba(0,229,255,0.08);}
       <g id="nodeLayer"></g>
     </svg>
     <div id="canvasHint">Double-clic canvas: ajouter nœud · Scroll: zoom · Glisser: panoramique · Double-clic nœud: voisins</div>
-    <div id="legend" style="position:absolute;bottom:36px;right:12px;background:rgba(12,16,24,0.92);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;font-size:9px;display:none;">
+    <div id="legend" style="position:absolute;bottom:36px;right:12px;background:var(--panel);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;font-size:9px;display:none;">
       <div style="font-weight:600;color:var(--dim);margin-bottom:4px">LÉGENDE</div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><div style="width:12px;height:12px;border-radius:2px;border:1.5px solid var(--cyan)"></div>Sélectionné</div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><div style="width:12px;height:12px;border-radius:2px;border:1.5px solid #ff4081"></div>Présent IFC</div>
@@ -434,11 +512,12 @@ const THEME_KEY = 'ifc_theme';
 function applyTheme(theme) {
   const root = document.documentElement;
   if (theme === 'system') {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
   } else {
     root.setAttribute('data-theme', theme);
   }
+  // Marquer le bouton correspondant à la sélection réelle (system/dark/light)
   document.querySelectorAll('.theme-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.theme === theme);
   });
@@ -457,9 +536,9 @@ function initTheme() {
 // HTML du widget à insérer dans le header
 function themeSwitcherHTML() {
   return `<div class="theme-switcher">
-    <button class="theme-btn" data-theme="dark"  onclick="applyTheme('dark')">🌙</button>
-    <button class="theme-btn" data-theme="light" onclick="applyTheme('light')">☀️</button>
-    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')">🖥</button>
+    <button class="theme-btn" data-theme="dark"  onclick="applyTheme('dark')"></button>
+    <button class="theme-btn" data-theme="light" onclick="applyTheme('light')"></button>
+    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')"></button>
   </div>`;
 }
 
@@ -710,28 +789,39 @@ svg.addEventListener('touchend',()=>{panStart=null;});
 
 // ===== LOAD DATA =====
 async function loadSchemaData(v){
-  if(schemaCache[v])return schemaCache[v];
+  if(schemaCache[v]) return Promise.resolve(schemaCache[v]);
   const sl=document.getElementById('schemaLoading');
   const ll=document.getElementById('schemaLoadingLabel');
+  const hide=()=>{if(sl)sl.classList.remove('visible');};
   if(sl) sl.classList.add('visible');
   if(ll) ll.textContent='Chargement schéma '+v+'...';
-  try{
-    const resp=await fetch(SCHEMA_URLS[v]);
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const data=await resp.json();
-    schemaCache[v]=data;
-    if(sl) sl.classList.remove('visible');
-    return data;
-  }catch(e){
-    console.error('Schema load error:',e);
-    if(sl) sl.classList.remove('visible');
-    return [];
-  }
+  return new Promise((resolve)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('GET',SCHEMA_URLS[v],true); xhr.timeout=12000;
+    xhr.onload=function(){
+      hide();
+      if(xhr.status===200){try{const d=JSON.parse(xhr.responseText);schemaCache[v]=d;resolve(d);}catch(e){resolve([]);}}
+      else resolve([]);
+    };
+    xhr.onerror=function(){hide();resolve([]);};
+    xhr.ontimeout=function(){hide();resolve([]);};
+    xhr.send();
+  });
 }
-async function loadPsetData(v){
-  if(psetCache[v]) return psetCache[v];
-  try{const r=await fetch(PSET_URLS[v]);psetCache[v]=await r.json();}catch(e){psetCache[v]={};}
-  return psetCache[v];
+function loadPsetData(v){
+  if(psetCache[v]) return Promise.resolve(psetCache[v]);
+  return new Promise((resolve)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('GET',PSET_URLS[v]||'',true); xhr.timeout=12000;
+    xhr.onload=function(){
+      if(xhr.status===200){try{psetCache[v]=JSON.parse(xhr.responseText);}catch(e){psetCache[v]={};}}
+      else psetCache[v]={};
+      resolve(psetCache[v]);
+    };
+    xhr.onerror=function(){psetCache[v]={};resolve({});};
+    xhr.ontimeout=function(){psetCache[v]={};resolve({});};
+    xhr.send();
+  });
 }
 function buildIndex(nodes){
   allNodes=nodes; byCode={}; childrenMap={};
@@ -1176,11 +1266,14 @@ initIFCDrop(
 
 // ===== INIT =====
 initTheme();
+applyTheme(sessionStorage.getItem('ifc_theme')||'system');
 (async()=>{
-  await loadSchema('ifc4x3');
-  const r=svg.getBoundingClientRect();
+  // Initialiser viewBox d'abord
+  const r=document.getElementById('centerWrap').getBoundingClientRect();
   viewBox={x:0,y:0,w:r.width||800,h:r.height||500};
   updateVB();
+  // Puis charger le schéma
+  await loadSchema('ifc4x3');
 })();
 </script>
 </body>
