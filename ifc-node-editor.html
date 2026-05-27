@@ -1004,14 +1004,35 @@ function renderCatalogue(){
   else if(bpFilter==='product')items=items.filter(n=>n.id==='IfcProduct'||isDescOf(n.id,'IfcProduct'));
   else if(bpFilter==='relation')items=items.filter(n=>n.id==='IfcRelationship'||isDescOf(n.id,'IfcRelationship'));
   if(q)items=items.filter(n=>n.id.toLowerCase().includes(q)||(n.name||'').toLowerCase().includes(q));
-  document.getElementById('bpCount').textContent=items.length+' entité'+(items.length!==1?'s':'');
+  const bpc=document.getElementById('bpCount');
+  if(bpc)bpc.textContent=items.length+' entite'+(items.length!==1?'s':'');
   const tbody=document.getElementById('catalogueTbody');
-  tbody.innerHTML=items.slice(0,300).map(n=>{
+  if(!tbody)return;
+  const rows=items.slice(0,300).map(n=>{
     const cnt=modelEntities[n.id.toUpperCase()]||0;
     const kids=(childrenMap[n.id]||[]).length;
     const gc=GROUPS[n.group]?.color||'#455a64';
-    return'<tr class="'+(selectedCode===n.id?'selected':'')+'" ondblclick="addNodeToGraph(this.dataset.id,null)" data-id="'+n.id+'" x-skip=",null)" onclick="updateRightPanel(''+n.id+'');selectedCode=''+n.id+'';renderGraphDOM();renderCatalogue()">'+'<td style="color:'+(cnt?'#ff3377':'var(--cyan)')+'">'+n.id+'</td>'+'<td>'+(n.name||'–')+'</td>'+'<td style="color:var(--dim);font-size:9px">'+(n.parent||'racine')+'</td>'+'<td><span style="color:'+gc+';font-size:9px">'+(GROUPS[n.group]?.label||n.group)+'</span></td>'+'<td>'+(cnt?'<span class="td-badge">◆ '+cnt+'</span>':'–')+'</td>'+'<td style="color:var(--dim)">'+(kids||'–')+'</td></tr>';
-  }).join('');
+    const isSel=selectedCode===n.id;
+    const tr=document.createElement('tr');
+    tr.dataset.nid=n.id;
+    if(isSel)tr.classList.add('selected');
+    tr.innerHTML=
+      '<td style="color:'+(cnt?'#ff3377':'var(--cyan)')+'">'+n.id+'</td>'
+      +'<td>'+(n.name||'–')+'</td>'
+      +'<td style="color:var(--dim);font-size:9px">'+(n.parent||'racine')+'</td>'
+      +'<td><span style="color:'+gc+';font-size:9px">'+(GROUPS[n.group]?.label||n.group)+'</span></td>'
+      +'<td>'+(cnt?'<span class="td-badge">◆ '+cnt+'</span>':'–')+'</td>'
+      +'<td style="color:var(--dim)">'+(kids||'–')+'</td>';
+    tr.addEventListener('click',function(){
+      selectedCode=this.dataset.nid;
+      updateRightPanel(this.dataset.nid);
+      renderGraphDOM();
+      renderCatalogue();
+    });
+    tr.addEventListener('dblclick',function(){addNodeToGraph(this.dataset.nid,null);});
+    return tr.outerHTML;
+  });
+  tbody.innerHTML=rows.join('');
   if(items.length>300)tbody.innerHTML+='<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:6px">… '+(items.length-300)+' autres</td></tr>';
 }
 
