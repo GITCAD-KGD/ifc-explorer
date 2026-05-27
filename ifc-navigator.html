@@ -280,6 +280,28 @@ body { font-weight: 400; }
 .slider-row label, .slider-val { color: var(--text) !important; }
 .legend-item { color: var(--text) !important; }
 
+
+/* ===== TEXTE SOMBRE AMÉLIORÉ ===== */
+:root, [data-theme="dark"] {
+  --text: #b8d0e8;
+  --bright: #e8f4ff;
+  --dim: #4a6880;
+}
+/* Police plus épaisse partout */
+body { -webkit-font-smoothing: antialiased; }
+.node-name, .tree-node, .filter-label,
+.dp-section-body, .detail-section-body,
+.crumb, .search-item, td, .child-link {
+  font-weight: 500 !important;
+  color: var(--text) !important;
+}
+.detail-title, .dp-title, .rp-title,
+.panel-header, .lp-header, .dp-section-title,
+.rp-section-title, .detail-section-title {
+  font-weight: 700 !important;
+  color: var(--bright) !important;
+}
+
 </style>
 </head>
 <body>
@@ -325,6 +347,7 @@ body { font-weight: 400; }
     <input type="text" id="searchInput" placeholder="Entité..." style="background:var(--bg);border:1px solid var(--border2);color:var(--bright);padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;border-radius:3px;outline:none;width:140px;">
     <div id="searchResults" style="position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border2);border-radius:3px;z-index:100;max-height:180px;overflow-y:auto;display:none;"></div>
   </div>
+  <button id="backBtn" disabled onclick="goBack()" style="background:transparent;border:1px solid var(--border2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 8px;border-radius:3px;cursor:pointer;flex-shrink:0;transition:all 0.15s;" onmouseover="if(!this.disabled)this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text)'">← Retour</button>
 </header>
 
 <div class="mobile-tabs" id="mobileTabs">
@@ -369,11 +392,20 @@ function applyTheme(theme) {
   } else {
     root.setAttribute('data-theme', theme);
   }
-  // Mettre à jour tous les boutons (header + ribbon)
+  // Marquer le bouton correspondant à la sélection réelle (system/dark/light)
   document.querySelectorAll('.theme-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.theme === theme);
   });
   sessionStorage.setItem(THEME_KEY, theme);
+}
+
+function initTheme() {
+  const saved = sessionStorage.getItem('ifc_theme') || 'system';
+  // Appliquer immédiatement
+  applyTheme(saved);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (sessionStorage.getItem('ifc_theme') === 'system') applyTheme('system');
+  });
 }
 
 function initTheme() {
@@ -607,14 +639,14 @@ async function setMode(m){
   else{if(!Object.keys(modelEntities).length){alert('Charger un .ifc d\'abord');setMode('schema');return;}await buildIfcMode();}
 }
 async function onSchemaChange(){currentSchema=document.getElementById('schemaSelect').value;if(mode==='schema')await loadSchema(currentSchema);}
-async function loadSchema(v){const n=await loadSchemaData(v);buildIndex(n);history=[];document.getElementById('backBtn').disabled=true;currentNode=getStart();renderGraph(currentNode);updateBreadcrumb();}
+async function loadSchema(v){const n=await loadSchemaData(v);buildIndex(n);history=[];const _bb=document.getElementById('backBtn');if(_bb)_bb.disabled=true;currentNode=getStart();renderGraph(currentNode);updateBreadcrumb();}
 async function buildIfcMode(){
   const ref=await loadSchemaData(currentSchema);
   const tmp={};ref.forEach(n=>tmp[n.id]=n);
   const keep=new Set();
   Object.keys(modelEntities).forEach(c=>{let cur=c;while(cur&&tmp[cur]){keep.add(cur);cur=tmp[cur].parent;}});
   buildIndex(ref.filter(n=>keep.has(n.id)));
-  history=[];document.getElementById('backBtn').disabled=true;currentNode=getStart();renderGraph(currentNode);updateBreadcrumb();
+  history=[];const _bb=document.getElementById('backBtn');if(_bb)_bb.disabled=true;currentNode=getStart();renderGraph(currentNode);updateBreadcrumb();
 }
 
 // SVG
@@ -678,10 +710,10 @@ function renderGraph(code){
   updateDetail(code);
 }
 
-function navigateTo(code){if(!byCode[code])return;if(code!==currentNode){history.push(currentNode);document.getElementById('backBtn').disabled=false;}currentNode=code;renderGraph(code);updateBreadcrumb();}
-function goBack(){if(!history.length)return;currentNode=history.pop();if(!history.length)document.getElementById('backBtn').disabled=true;renderGraph(currentNode);updateBreadcrumb();}
+function navigateTo(code){if(!byCode[code])return;if(code!==currentNode){history.push(currentNode);const _bb2=document.getElementById('backBtn');if(_bb2)_bb2.disabled=false;}currentNode=code;renderGraph(code);updateBreadcrumb();}
+function goBack(){if(!history.length)return;currentNode=history.pop();if(!history.length)const _bb=document.getElementById('backBtn');if(_bb)_bb.disabled=true;renderGraph(currentNode);updateBreadcrumb();}
 function updateBreadcrumb(){const chain=[...history,currentNode].slice(-4);document.getElementById('breadcrumb').innerHTML=chain.map((c,i)=>{const cur=i===chain.length-1;return`${i>0?'<span class="crumb-sep">›</span>':''}<span class="crumb ${cur?'current':''}" ${!cur?`onclick="jumpTo('${c}')"`:''}>${c}</span>`;}).join('');}
-function jumpTo(code){const i=history.indexOf(code);if(i!==-1)history=history.slice(0,i);currentNode=code;document.getElementById('backBtn').disabled=history.length===0;renderGraph(code);updateBreadcrumb();}
+function jumpTo(code){const i=history.indexOf(code);if(i!==-1)history=history.slice(0,i);currentNode=code;const _bb3=document.getElementById('backBtn');if(_bb3)_bb3.disabled=history.length===0;renderGraph(code);updateBreadcrumb();}
 
 async function updateDetail(code) {
   const n = byCode[code]; if (!n) return;
@@ -830,6 +862,8 @@ initIFCDrop(
 })();
 
 window.addEventListener('resize',()=>{if(currentNode)renderGraph(currentNode);});
+// Init thème dès que possible
+applyTheme(sessionStorage.getItem('ifc_theme')||'system');
 loadSchema('ifc4x3');
 </script>
 </body>
