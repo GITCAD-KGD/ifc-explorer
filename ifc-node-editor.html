@@ -1,17 +1,35 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IFC Node Editor</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>">
 <script>
+
+function applyTheme(theme) {
+  var root = document.documentElement;
+  if (theme === 'system') {
+    var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+  } else {
+    root.setAttribute('data-theme', theme);
+  }
+  document.querySelectorAll('.theme-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+  sessionStorage.setItem(THEME_KEY, theme);
+}
+
+function initTheme() {
+  var saved = sessionStorage.getItem(THEME_KEY) || 'system';
+  applyTheme(saved);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+    if (sessionStorage.getItem(THEME_KEY) === 'system') applyTheme('system');
+  });
+}
+
+// Appliquer data-theme immédiatement
 (function(){
-  var t=sessionStorage.getItem('ifc_theme')||'system';
-  var dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  var t = sessionStorage.getItem('ifc_theme') || 'system';
+  var dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
   document.documentElement.setAttribute('data-theme', t==='system'?(dark?'dark':'light'):t);
 })();
 </script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Syne:wght@400;700;800&display=swap');
@@ -964,17 +982,17 @@ async function updateRightPanel(code){
   if(cnt) html+='<div class="instance-badge">◆ '+cnt+' instance'+(cnt>1?'s':'')+'</div>';
   if(n.def) html+='<div class="rp-section"><div class="rp-section-title">Définition</div><div class="rp-section-body">'+n.def.slice(0,250)+'…</div></div>';
   html+='<div class="rp-section"><div class="rp-section-title">Hiérarchie</div><div class="rp-section-body">';
-  if(n.parent&&byCode[n.parent]) html+='Parent : <span class="link-parent" onclick="addNodeToGraph('"+n.parent+"',null)">'+n.parent+'</span><br>';
+  if(n.parent&&byCode[n.parent]) html+='Parent : <span class="link-parent" data-id="'+n.parent+'" onclick="addNodeToGraph(this.dataset.id,null)">'+n.parent+'</span><br>';
   else html+='<span class="color-dim">Racine</span><br>';
   html+=kids.length+' sous-type'+(kids.length!==1?'s':'');
-  if(kids.length) html+='<div style="margin-top:4px">'+kids.slice(0,8).map(k=>'<span class="link-child" onclick="addNodeToGraph('"+k+"',null)" style="margin-right:6px;font-size:9px">'+k+'</span>').join('')+(kids.length>8?'<span class="color-dim" style="font-size:9px">+' + (kids.length-8) + ' autres</span>':'')+'</div>';
+  if(kids.length) html+='<div style="margin-top:4px">'+kids.slice(0,8).map(k=>'<span class="link-child" data-id="'+k+'" onclick="addNodeToGraph(this.dataset.id,null)" style="margin-right:6px;font-size:9px">'+k+'</span>').join('')+(kids.length>8?'<span class="color-dim" style="font-size:9px">+' + (kids.length-8) + ' autres</span>':'')+'</div>';
   html+='</div></div>';
 
   if(attrs.length){html+='<div class="rp-section"><div class="rp-section-title">Attributs ('+attrs.length+')</div><div class="rp-section-body"><table class="attr-table">';attrs.forEach(a=>{html+='<tr><td class="'+(a.o?'color-dim':'color-bright')+'">'+(a.o?''+'':'<span class="t-required">!</span> ')+a.n+'</td><td>'+tl(a.t)+'</td></tr>';});html+='</table></div></div>';}
   if(Object.keys(psets).length){html+='<div class="rp-section"><div class="rp-section-title">PSET ('+Object.keys(psets).length+')</div><div class="rp-section-body">';Object.entries(psets).forEach(([pn,pp])=>{html+='<div class="pset-block"><div class="pset-name">'+pn+'</div>';pp.forEach(p=>{html+='<div class="prop-row"><span class="color-bright">'+p.n+'</span>'+(p.k?'<span class="t-enum"> ['+p.k+']</span>':'')+(p.d?'<div class="prop-def color-dim">'+p.d+'</div>':'')+'</div>';});html+='</div>';});html+='</div></div>';}
   if(Object.keys(qtos).length){html+='<div class="rp-section"><div class="rp-section-title">QTO</div><div class="rp-section-body">';Object.entries(qtos).forEach(([qn,qp])=>{html+='<div class="pset-block"><div class="qto-name">'+qn+'</div>';qp.forEach(p=>{html+='<div class="prop-row"><span class="color-bright">'+p.n+'</span>'+(p.d?'<div class="prop-def color-dim">'+p.d+'</div>':'')+'</div>';});html+='</div>';});html+='</div></div>';}
 
-  html+='<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button onclick="addNodeToGraph('"+code+"',null)" style="padding:3px 8px;background:transparent;border:1px solid var(--border2);color:var(--text);font-family:JetBrains Mono,monospace;font-size:9px;border-radius:3px;cursor:pointer;font-weight:600">+ Ajouter au graphe</button><a href="'+doc+'" target="_blank" class="rp-link">↗ Doc</a></div>';
+  html+='<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button data-id="\'+ code +\'" onclick="addNodeToGraph(this.dataset.id,null)" style="padding:3px 8px;background:transparent;border:1px solid var(--border2);color:var(--text);font-family:JetBrains Mono,monospace;font-size:9px;border-radius:3px;cursor:pointer;font-weight:600">+ Ajouter au graphe</button><a href="'+doc+'" target="_blank" class="rp-link">↗ Doc</a></div>';
   document.getElementById('rpBody').innerHTML=html;
 }
 
