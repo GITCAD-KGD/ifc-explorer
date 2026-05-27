@@ -253,6 +253,25 @@ table.catalogue tr.selected td{background:rgba(0,212,240,0.08);}
 }
 ::-webkit-scrollbar{width:3px;height:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 
+
+/* Overlays */
+#schemaLoading{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:900;flex-direction:column;gap:16px;}
+#schemaLoading.visible{display:flex;}
+#ifcModal{position:fixed;inset:0;background:rgba(6,8,16,0.92);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(8px);}
+#ifcModal.visible{display:flex;}
+.ifc-modal-box{background:var(--panel);border:1px solid var(--border2);border-radius:6px;padding:28px 32px;width:340px;text-align:center;}
+.ifc-modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--cyan);margin-bottom:6px;}
+.ifc-modal-sub{font-size:10px;color:var(--dim);margin-bottom:20px;}
+.ifc-modal-filename{font-size:11px;color:var(--text);margin-bottom:16px;}
+.progress-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:12px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:2px;width:0%;transition:width 0.2s;}
+.progress-pct{font-size:11px;color:var(--cyan);font-weight:600;}
+.ifc-modal-status{font-size:10px;color:var(--dim);margin-top:8px;}
+.schema-loading-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--cyan);}
+.schema-loading-sub{font-size:11px;color:var(--dim);}
+.spinner-lg{width:40px;height:40px;border:2px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
 </style>
 </head>
 <body>
@@ -274,7 +293,7 @@ table.catalogue tr.selected td{background:rgba(0,212,240,0.08);}
 <header>
   <a class="back-link" href="index.html">← Accueil</a>
   <div class="logo">IFC<span>/</span>Nodes</div>
-  <div class="view-switcher"><a class="view-btn current" href="ifc-navigator.html">Nav</a><a class="view-btn" href="ifc-explorer.html">Explorer</a><a class="view-btn" href="ifc-graph.html">Graph</a><a class="view-btn current" href="ifc-node-editor.html">Nodes</a></div>
+  <div class="view-switcher"><a class="view-btn" href="ifc-navigator.html">Nav</a><a class="view-btn" href="ifc-explorer.html">Explorer</a><a class="view-btn" href="ifc-graph.html">Graph</a><a class="view-btn current" href="ifc-node-editor.html">Nodes</a></div>
   <div class="theme-switcher">
     <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre"></button>
     <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair"></button>
