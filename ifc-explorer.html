@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script>
+(function(){
+  var t=sessionStorage.getItem('ifc_theme')||'system';
+  var dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.setAttribute('data-theme', t==='system'?(dark?'dark':'light'):t);
+})();
+</script>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IFC Explorer</title>
 <style>
@@ -117,23 +125,45 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 1
 
 
 /* ===== THEME ===== */
-:root,[data-theme="dark"]{
-  --bg:#0d1117;--bg2:#141b24;--bg3:#1a2332;
-  --panel:#111820;--border:#1e2d42;--border2:#263548;
-  --text:#a8c4e0;--bright:#ddeeff;--dim:#3d5470;
-  --cyan:#00d4f0;--purple:#8866ff;--green:#00cc66;
-  --pink:#ff3377;--orange:#ff8800;--yellow:#ffcc00;
-  --accent:#00d4f0;--accent2:#8866ff;--accent3:#00cc66;
-  --warn:#ff3377;--text-dim:#3d5470;--text-bright:#ddeeff;
+:root, [data-theme="dark"] {
+  --bg:     #0a0e15;
+  --bg2:    #111820;
+  --bg3:    #18222e;
+  --panel:  #0e1520;
+  --border: #1a2840;
+  --border2:#223050;
+  --text:   #7a9ab8;
+  --bright: #cde0f5;
+  --dim:    #4a6888;
+  --cyan:   #00d4f0;
+  --purple: #8866ff;
+  --green:  #00cc66;
+  --pink:   #ff3377;
+  --orange: #ff8800;
+  --accent: #00d4f0;
+  --accent2:#8866ff;
+  --accent3:#00cc66;
+  --warn:   #ff3377;
 }
-[data-theme="light"]{
-  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8edf4;
-  --panel:#ffffff;--border:#c0d0e0;--border2:#a0b8cc;
-  --text:#244060;--bright:#0a1e30;--dim:#7090a8;
-  --cyan:#0070a0;--purple:#4422aa;--green:#005522;
-  --pink:#aa0044;--orange:#883300;--yellow:#664400;
-  --accent:#0070a0;--accent2:#4422aa;--accent3:#005522;
-  --warn:#aa0044;--text-dim:#7090a8;--text-bright:#0a1e30;
+[data-theme="light"] {
+  --bg:     #eef2f7;
+  --bg2:    #ffffff;
+  --bg3:    #e4eaf2;
+  --panel:  #ffffff;
+  --border: #c0cfe0;
+  --border2:#a0bcd0;
+  --text:   #1a3a5c;
+  --bright: #0a1e2e;
+  --dim:    #6888a8;
+  --cyan:   #005580;
+  --purple: #3311aa;
+  --green:  #004422;
+  --pink:   #880033;
+  --orange: #773300;
+  --accent: #005580;
+  --accent2:#3311aa;
+  --accent3:#004422;
+  --warn:   #880033;
 }
 [data-theme="light"] body{background:var(--bg);}
 [data-theme="light"] svg text{fill:var(--text);}
@@ -241,6 +271,61 @@ header{
 #dropStatus{font-size:10px;color:var(--green);white-space:nowrap;flex-shrink:0;}
 #modeLabel{font-size:10px;color:var(--pink);display:none;flex-shrink:0;}
 
+/* Icônes SVG minimalistes inline pour thème */
+.theme-btn[data-theme="dark"]::before  { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn[data-theme="light"]::before { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn[data-theme="system"]::before { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='3' width='20' height='14' rx='2'/%3E%3Cline x1='8' y1='21' x2='16' y2='21'/%3E%3Cline x1='12' y1='17' x2='12' y2='21'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='3' width='20' height='14' rx='2'/%3E%3Cline x1='8' y1='21' x2='16' y2='21'/%3E%3Cline x1='12' y1='17' x2='12' y2='21'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn { font-size:0; width:26px; height:26px; display:flex; align-items:center; justify-content:center; }
+.theme-btn::before { font-size:0; }
+.theme-btn.active::before { background:#000; }
+
+/* Arbre — lisibilité */
+.node-name { color: var(--text) !important; font-weight: 600; }
+.node-name.dim { color: var(--dim) !important; font-weight: 500; }
+.tree-node.present .node-name { color: var(--green) !important; font-weight: 700; }
+.tree-node.selected .node-name { color: var(--bright) !important; font-weight: 700; }
+.node-icon { color: var(--dim); }
+.tree-node.present .node-icon { color: var(--green); }
+
+
+/* Header textes lisibles */
+.back-link, .view-btn:not(.current), .mode-tab:not(.active),
+.schema-select, .drop-btn, #dropStatus {
+  color: var(--text) !important;
+  font-weight: 600;
+}
+
+/* Classes sémantiques */
+.color-accent  { color: var(--cyan) !important; }
+.color-present { color: var(--pink) !important; }
+.color-bright  { color: var(--bright) !important; font-weight: 600; }
+.color-dim     { color: var(--dim) !important; }
+.link-parent   { color: var(--purple); cursor: pointer; font-weight: 600; }
+.link-child    { color: var(--green); cursor: pointer; font-weight: 600; }
+.link-present  { color: var(--pink); cursor: pointer; font-weight: 600; }
+
+/* Panneau détail lisible */
+.detail-content, .detail-content * { color: var(--text); }
+.detail-title { color: var(--cyan) !important; font-weight: 700; }
+.detail-section-title { color: var(--dim) !important; font-weight: 700; }
+.detail-section-body { color: var(--text) !important; font-weight: 600; }
+.child-link { color: var(--green) !important; font-weight: 600; }
+.doc-link { color: var(--cyan) !important; }
+
+/* Catalogue cartes */
+.ec-name { color: var(--bright) !important; font-weight: 700; }
+.ec-parent { color: var(--dim) !important; font-weight: 500; }
+.entity-card.present-card .ec-name { color: var(--green) !important; }
+
+/* Titres panneaux */
+.panel-header { color: var(--text) !important; font-weight: 700; }
+.panel-header .count { color: var(--cyan) !important; }
+.filter-btn { color: var(--text) !important; font-weight: 600; }
+.filter-btn.active { color: #000 !important; }
+
 </style>
 </head>
 <body>
@@ -264,9 +349,9 @@ header{
   <div class="logo">IFC<span>/</span>Explorer</div>
   <div class="view-switcher"><a class="view-btn" href="ifc-navigator.html">Nav</a><a class="view-btn  current" href="ifc-explorer.html">Explorer</a><a class="view-btn" href="ifc-graph.html">Graph</a><a class="view-btn" href="ifc-node-editor.html">Nodes</a></div>
   <div class="theme-switcher">
-    <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre">🌙</button>
-    <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair">☀️</button>
-    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système">🖥</button>
+    <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre"></button>
+    <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair"></button>
+    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système"></button>
   </div>
   <div class="h-sep"></div>
   <div class="mode-tabs">
@@ -324,7 +409,7 @@ function applyTheme(theme) {
   } else {
     root.setAttribute('data-theme', theme);
   }
-  // Mettre à jour tous les boutons (header + ribbon)
+  // Marquer le bouton correspondant à la sélection réelle (system/dark/light)
   document.querySelectorAll('.theme-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.theme === theme);
   });
@@ -332,10 +417,11 @@ function applyTheme(theme) {
 }
 
 function initTheme() {
-  const saved = sessionStorage.getItem(THEME_KEY) || 'system';
+  const saved = sessionStorage.getItem('ifc_theme') || 'system';
+  // Appliquer immédiatement
   applyTheme(saved);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (sessionStorage.getItem(THEME_KEY) === 'system') applyTheme('system');
+    if (sessionStorage.getItem('ifc_theme') === 'system') applyTheme('system');
   });
 }
 
@@ -695,6 +781,7 @@ initIFCDrop(
   updateDropStatus(state);
   setTimeout(() => setMode('ifc'), 100);
 })();
+applyTheme(sessionStorage.getItem('ifc_theme')||'system');
 loadSchema('ifc4x3');
 </script>
 </body>
