@@ -564,14 +564,9 @@ async function buildIfcGraph(){
   buildGraph(ref.filter(n=>keepCodes.has(n.id)));
 }
 
-console.log('D3 version:',d3.version);
+
 // Vérifier dimensions SVG après chargement
-window.addEventListener('load',()=>{
-  const s=document.getElementById('graphSvg');
-  console.log('SVG size:',s.clientWidth,'x',s.clientHeight);
-  const wrap=s.parentElement;
-  console.log('Wrap size:',wrap.clientWidth,'x',wrap.clientHeight);
-});
+
 const svg=d3.select('#graphSvg');
 const mainG=svg.append('g');
 const zoom=d3.zoom().scaleExtent([0.05,8]).on('zoom',e=>mainG.attr('transform',e.transform));
@@ -615,7 +610,7 @@ function buildGraph(rawNodes){
     .force('collision',d3.forceCollide().radius(d=>getNodeRadius(d)+(+document.getElementById('slCollision').value)))
     .alphaDecay(0.015).velocityDecay(0.4);
   const link=mainG.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke','#0e1622').attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source:{depth:5};return s.depth<=3?1.5:0.5;}).attr('opacity',0.6);
+    .attr('stroke',d=>{const s=typeof d.source==='object'?d.source:{depth:5};return s.depth<=3?'#4a7090':'#3a5870';}).attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source:{depth:5};return s.depth<=3?2:1;}).attr('opacity',0.8);
   const node=mainG.append('g').selectAll('g').data(nodes).join('g').style('cursor','pointer')
     .call(d3.drag()
       .on('start',(e,d)=>{if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
@@ -628,11 +623,18 @@ function buildGraph(rawNodes){
   node.on('mouseover',(e,d)=>showTooltip(e,d)).on('mousemove',e=>moveTooltip(e)).on('mouseout',hideTooltip)
     .on('click',(e,d)=>{e.stopPropagation();selectNode(d);highlightConnected(d,node,link);});
   svg.on('click',()=>{clearHighlight(node,link);(document.getElementById('selectedPanel')||{style:{}}).style.display='none';});
-  simulation.on('tick',()=>{link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);node.attr('transform',d=>`translate(${d.x},${d.y})`);});
-  console.log('Nodes created:',nodes.length,'visible:',activeGroups.size);
+  simulation.on('tick',()=>{
+    link
+      .attr('x1',d=>{const r=getNodeRadius(d.source);const dx=d.target.x-d.source.x,dy=d.target.y-d.source.y;const dist=Math.sqrt(dx*dx+dy*dy)||1;return d.source.x+dx/dist*r;})
+      .attr('y1',d=>{const r=getNodeRadius(d.source);const dx=d.target.x-d.source.x,dy=d.target.y-d.source.y;const dist=Math.sqrt(dx*dx+dy*dy)||1;return d.source.y+dy/dist*r;})
+      .attr('x2',d=>{const r=getNodeRadius(d.target)+2;const dx=d.target.x-d.source.x,dy=d.target.y-d.source.y;const dist=Math.sqrt(dx*dx+dy*dy)||1;return d.target.x-dx/dist*r;})
+      .attr('y2',d=>{const r=getNodeRadius(d.target)+2;const dx=d.target.x-d.source.x,dy=d.target.y-d.source.y;const dist=Math.sqrt(dx*dx+dy*dy)||1;return d.target.y-dy/dist*r;});
+    node.attr('transform',d=>`translate(${d.x},${d.y})`);
+  });
+  
   window._node=node;window._link=link;
   updateVisibility();
-  console.log('After updateVisibility, first node display:',node.size()>0?node.filter((d,i)=>i===0).style('display'):'no nodes');
+  
 setTimeout(()=>{
   if(window._node && window._node.size()>0){
     const d=window._node.data()[0];
@@ -646,7 +648,7 @@ setTimeout(()=>{
 }
 function updateVisibility(){if(!window._node)return;window._node.style('display',d=>activeGroups.has(d.group)?null:'none');window._link.style('display',d=>{const s=typeof d.source==='object'?d.source:{};const t=typeof d.target==='object'?d.target:{};return activeGroups.has(s.group)&&activeGroups.has(t.group)?null:'none';});}
 function highlightConnected(sel,node,link){const conn=new Set([sel.id]);link.each(d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;if(s===sel.id)conn.add(t);if(t===sel.id)conn.add(s);});node.select('.node-circle').attr('fill-opacity',d=>conn.has(d.id)?1:0.06).attr('r',d=>d.id===sel.id?getNodeRadius(d)*1.8:getNodeRadius(d));link.attr('stroke',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?'#00e5ff':'#0e1622';}).attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?2:0.5;}).attr('opacity',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?1:0.04;});}
-function clearHighlight(node,link){node.select('.node-circle').attr('fill-opacity',d=>d.depth<=4?0.9:0.5).attr('r',d=>getNodeRadius(d));link.attr('stroke','#0e1622').attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source:{depth:5};return s.depth<=3?1.5:0.5;}).attr('opacity',0.6);}
+function clearHighlight(node,link){node.select('.node-circle').attr('fill-opacity',d=>d.depth<=4?0.9:0.5).attr('r',d=>getNodeRadius(d));link.attr('stroke',d=>{const s=typeof d.source==='object'?d.source:{depth:5};return s.depth<=3?'#4a7090':'#3a5870';}).attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source:{depth:5};return s.depth<=3?2:1;}).attr('opacity',0.8);}
 const tooltip=document.getElementById('tooltip');
 function showTooltip(e,d){const c=modelEntities[d.id.toUpperCase()]?'#ff4081':(GROUPS[d.group]?.c||'#fff');document.getElementById('tt-title').textContent=d.id;document.getElementById('tt-title').style.color=c;document.getElementById('tt-meta').textContent=`${GROUPS[d.group]?.l||d.group} · profondeur ${d.depth}`;document.getElementById('tt-def').textContent=d.def||'';tooltip.style.display='block';moveTooltip(e);}
 function moveTooltip(e){tooltip.style.left=Math.min(e.clientX+16,window.innerWidth-280)+'px';tooltip.style.top=Math.min(e.clientY-10,window.innerHeight-140)+'px';}
@@ -681,7 +683,7 @@ setTimeout(()=>{
   if(sl) sl.classList.remove('visible');
 },10000);
 
-(async()=>{const data=await loadSchemaData('ifc4x3');console.log('Schema loaded:',data.length,'nodes');buildGraph(data);})();
+(async()=>{const data=await loadSchemaData('ifc4x3');buildGraph(data);})();
 
 function togglePalette() {
   var c = document.getElementById('controls');

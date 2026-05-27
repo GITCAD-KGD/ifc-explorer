@@ -4,74 +4,130 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IFC Suite</title>
+<script>
+(function(){
+  var t=sessionStorage.getItem('ifc_theme')||'system';
+  var dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.setAttribute('data-theme', t==='system'?(dark?'dark':'light'):t);
+})();
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap');
-:root{--bg:#0d1117;--panel:#111820;--border:#1e2d42;--border2:#263548;--text:#a8c4e0;--bright:#ddeeff;--dim:#3d5470;--cyan:#00d4f0;--green:#00cc66;--pink:#ff3377;--purple:#8866ff;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
-.container{max-width:640px;width:100%;text-align:center;}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:40px;color:var(--cyan);margin-bottom:6px;}
-.logo span{color:var(--dim);}
-.subtitle{font-size:11px;color:var(--dim);margin-bottom:48px;letter-spacing:0.5px;}
-.cards{display:grid;gap:12px;}
-.card{
-  background:var(--panel);border:1px solid var(--border);border-radius:6px;
-  padding:20px 24px;text-decoration:none;color:inherit;
-  transition:all 0.2s;text-align:left;display:block;
+
+:root,[data-theme="dark"]{
+  --bg:#0a0e15;--bg2:#111820;--panel:#0e1520;--border:#1a2840;--border2:#223050;
+  --text:#7a9ab8;--bright:#cde0f5;--dim:#2d4560;
+  --cyan:#00d4f0;--green:#00cc66;--pink:#ff3377;--purple:#8866ff;--orange:#ff8800;
 }
-.card:hover{border-color:var(--cyan);background:#141b24;}
-.card-header{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
-.card-icon{font-size:22px;flex-shrink:0;}
-.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--bright);}
-.card-desc{font-size:10px;color:var(--dim);line-height:1.8;}
-.card-tag{display:inline-block;margin-top:10px;padding:2px 8px;border-radius:2px;font-size:9px;font-weight:600;border:1px solid;}
-.version-note{margin-top:24px;font-size:10px;color:var(--dim);}
-.version-note span{color:var(--cyan);}
+[data-theme="light"]{
+  --bg:#eef2f7;--bg2:#ffffff;--panel:#ffffff;--border:#c0cfe0;--border2:#a0bcd0;
+  --text:#1a3a5c;--bright:#0a1e2e;--dim:#6888a8;
+  --cyan:#005580;--green:#004422;--pink:#880033;--purple:#3311aa;--orange:#773300;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;flex-direction:column;}
+
+/* HEADER */
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--cyan);}
+.logo span{color:var(--dim);}
+.h-sep{flex:1;}
+.theme-switcher{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:2px;}
+.theme-btn{padding:2px 6px;border-radius:3px;font-size:0;width:28px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);border:none;background:transparent;transition:all 0.15s;}
+.theme-btn:hover{opacity:0.8;}
+.theme-btn.active{background:var(--cyan);color:#000;}
+
+.theme-btn[data-theme="dark"]::before  { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn[data-theme="light"]::before { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn[data-theme="system"]::before { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='3' width='20' height='14' rx='2'/%3E%3Cline x1='8' y1='21' x2='16' y2='21'/%3E%3Cline x1='12' y1='17' x2='12' y2='21'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='3' width='20' height='14' rx='2'/%3E%3Cline x1='8' y1='21' x2='16' y2='21'/%3E%3Cline x1='12' y1='17' x2='12' y2='21'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn { font-size:0; width:26px; height:26px; display:flex; align-items:center; justify-content:center; }
+
+/* MAIN */
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 20px;}
+.container{max-width:640px;width:100%;}
+.subtitle{font-size:11px;color:var(--dim);margin-bottom:36px;text-align:center;letter-spacing:0.5px;}
+.cards{display:grid;gap:10px;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:18px 22px;text-decoration:none;color:inherit;transition:all 0.2s;display:block;}
+.card:hover{border-color:var(--cyan);background:var(--bg2);}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+.card-icon{font-size:20px;flex-shrink:0;}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--bright);}
+.card-desc{font-size:10px;color:var(--text);line-height:1.8;font-weight:600;}
+.card-tag{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:2px;font-size:9px;font-weight:600;border:1px solid;}
+.footer{text-align:center;padding:16px;font-size:10px;color:var(--dim);}
+.footer span{color:var(--cyan);}
 </style>
 </head>
 <body>
-<div class="container">
+<header>
   <div class="logo">IFC<span>/</span>Suite</div>
-  <div class="subtitle">Outils pédagogiques · IFC 2x3 · IFC 4 · IFC 4.3 · Thème système · Confidentialité locale</div>
-  <div class="cards">
-    <a class="card" href="ifc-navigator.html">
-      <div class="card-header">
-        <div class="card-icon">⬡</div>
-        <div class="card-title">IFC Navigator</div>
-      </div>
-      <div class="card-desc">Navigation contextuelle nœud par nœud. Cliquer sur un sous-type pour en faire le centre. Breadcrumb, recherche, attributs, PSET et QTO dans le détail.</div>
-      <span class="card-tag" style="border-color:#00d4f0;color:#00d4f0;">Graphe contextuel</span>
-    </a>
-    <a class="card" href="ifc-explorer.html">
-      <div class="card-header">
-        <div class="card-icon">☰</div>
-        <div class="card-title">IFC Explorer</div>
-      </div>
-      <div class="card-desc">Arbre hiérarchique + catalogue en grille + panneau de détail complet. Filtres par groupe, recherche dans l'arbre, attributs, PSET et QTO.</div>
-      <span class="card-tag" style="border-color:#00cc66;color:#00cc66;">Arbre + catalogue</span>
-    </a>
-    <a class="card" href="ifc-graph.html">
-      <div class="card-header">
-        <div class="card-icon">◎</div>
-        <div class="card-title">IFC Graph</div>
-      </div>
-      <div class="card-desc">Graphe global de toutes les entités avec simulation physique D3. Zoom, groupes filtrables, sliders de physique, spotlight par recherche.</div>
-      <span class="card-tag" style="border-color:#ff3377;color:#ff3377;">Graphe global</span>
-    </a>
-    <a class="card" href="ifc-node-editor.html">
-      <div class="card-header">
-        <div class="card-icon">⊞</div>
-        <div class="card-title">IFC Node Editor</div>
-      </div>
-      <div class="card-desc">Éditeur de nœuds style Dynamo/Grasshopper. Rectangles reliés par splines de Bézier. Ruban de fonctions, filtres, catalogue tabulaire, PSET et QTO complets.</div>
-      <span class="card-tag" style="border-color:#8866ff;color:#8866ff;">Nœuds + splines</span>
-    </a>
+  <div class="h-sep"></div>
+  <div class="theme-switcher">
+    <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre"></button>
+    <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair"></button>
+    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système"></button>
   </div>
-  <div class="version-note">
-    Schémas extraits depuis <span>buildingSMART</span> · 
-    Données locales uniquement (<span>sessionStorage</span>) · 
-    Aucune donnée transmise
+</header>
+<main>
+  <div class="container">
+    <div class="subtitle">Outils pédagogiques IFC · 2x3 · 4 · 4.3 · Données locales uniquement</div>
+    <div class="cards">
+      <a class="card" href="ifc-navigator.html">
+        <div class="card-header"><div class="card-icon">⬡</div><div class="card-title">IFC Navigator</div></div>
+        <div class="card-desc">Navigation contextuelle nœud par nœud. Hiérarchie, attributs, PSET et QTO dans le détail.</div>
+        <span class="card-tag" style="border-color:#00d4f0;color:#00d4f0;">Graphe contextuel</span>
+      </a>
+      <a class="card" href="ifc-explorer.html">
+        <div class="card-header"><div class="card-icon">☰</div><div class="card-title">IFC Explorer</div></div>
+        <div class="card-desc">Arbre hiérarchique + catalogue en grille + panneau de détail. Filtres, recherche, attributs, PSET et QTO.</div>
+        <span class="card-tag" style="border-color:#00cc66;color:#00cc66;">Arbre + catalogue</span>
+      </a>
+      <a class="card" href="ifc-graph.html">
+        <div class="card-header"><div class="card-icon">◎</div><div class="card-title">IFC Graph</div></div>
+        <div class="card-desc">Graphe global de toutes les entités avec simulation physique. Zoom, filtres par groupe, sliders de physique.</div>
+        <span class="card-tag" style="border-color:#ff3377;color:#ff3377;">Graphe global</span>
+      </a>
+      <a class="card" href="ifc-node-editor.html">
+        <div class="card-header"><div class="card-icon">⊞</div><div class="card-title">IFC Node Editor</div></div>
+        <div class="card-desc">Éditeur nœuds style Dynamo. Rectangles reliés par splines de Bézier. Ruban, filtres, catalogue, PSET et QTO.</div>
+        <span class="card-tag" style="border-color:#8866ff;color:#8866ff;">Nœuds + splines</span>
+      </a>
+    </div>
   </div>
-</div>
+</main>
+<footer class="footer">Schémas <span>buildingSMART</span> · Aucune donnée transmise · <span>sessionStorage</span> uniquement</footer>
+
+<script>
+const THEME_KEY = 'ifc_theme';
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'system') {
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+  } else {
+    root.setAttribute('data-theme', theme);
+  }
+  // Marquer le bouton correspondant à la sélection réelle (system/dark/light)
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+  sessionStorage.setItem(THEME_KEY, theme);
+}
+
+function initTheme() {
+  const saved = sessionStorage.getItem('ifc_theme') || 'system';
+  // Appliquer immédiatement
+  applyTheme(saved);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (sessionStorage.getItem('ifc_theme') === 'system') applyTheme('system');
+  });
+}
+
+initTheme();
+</script>
 </body>
 </html>
