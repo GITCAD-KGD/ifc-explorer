@@ -240,6 +240,46 @@ header{
 #dropStatus{font-size:10px;color:var(--green);white-space:nowrap;flex-shrink:0;}
 #modeLabel{font-size:10px;color:var(--pink);display:none;flex-shrink:0;}
 
+/* Icônes SVG minimalistes inline pour thème */
+.theme-btn[data-theme="dark"]::before  { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn[data-theme="light"]::before { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn[data-theme="system"]::before { content: ""; display:inline-block; width:14px; height:14px; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='3' width='20' height='14' rx='2'/%3E%3Cline x1='8' y1='21' x2='16' y2='21'/%3E%3Cline x1='12' y1='17' x2='12' y2='21'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='3' width='20' height='14' rx='2'/%3E%3Cline x1='8' y1='21' x2='16' y2='21'/%3E%3Cline x1='12' y1='17' x2='12' y2='21'/%3E%3C/svg%3E") center/contain no-repeat; vertical-align:middle; }
+
+.theme-btn { font-size:0; width:26px; height:26px; display:flex; align-items:center; justify-content:center; }
+.theme-btn::before { font-size:0; }
+.theme-btn.active::before { background:#000; }
+
+
+/* ===== TYPOGRAPHIE AMÉLIORÉE ===== */
+body { font-weight: 400; }
+.node-name, .ec-name, .tree-node, .filter-label,
+.dp-section-body, .rp-section-body, .detail-section-body {
+  font-weight: 500;
+  color: var(--bright);
+}
+.panel-header, .lp-header, .dp-section-title,
+.rp-section-title, .detail-section-title, .detail-title,
+.rp-title, .dp-title { font-weight: 700; }
+.crumb, .search-item, .bp-filter-btn { font-weight: 500; }
+
+/* Palette/légende responsive au thème */
+#legend {
+  background: var(--panel) !important;
+  border-color: var(--border2) !important;
+  color: var(--text) !important;
+}
+.leg-row { color: var(--text); }
+.ctrl-panel {
+  background: var(--panel) !important;
+  border-color: var(--border2) !important;
+  color: var(--text) !important;
+}
+.ctrl-title { color: var(--dim) !important; }
+.slider-row label, .slider-val { color: var(--text) !important; }
+.legend-item { color: var(--text) !important; }
+
 </style>
 </head>
 <body>
@@ -263,9 +303,9 @@ header{
   <div class="logo">IFC<span>/</span>Nav</div>
   <div class="view-switcher"><a class="view-btn  current" href="ifc-navigator.html">Nav</a><a class="view-btn" href="ifc-explorer.html">Explorer</a><a class="view-btn" href="ifc-graph.html">Graph</a><a class="view-btn" href="ifc-node-editor.html">Nodes</a></div>
   <div class="theme-switcher">
-    <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre">🌙</button>
-    <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair">☀️</button>
-    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système">🖥</button>
+    <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre"></button>
+    <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair"></button>
+    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système"></button>
   </div>
   <div class="h-sep"></div>
   <div class="mode-tabs">
@@ -280,6 +320,11 @@ header{
   <div class="drop-btn" id="dropZone">⬡ .ifc<input type="file" id="fileInput" accept=".ifc"></div>
   <div id="dropStatus"></div>
   <div id="modeLabel">◆ IFC</div>
+
+  <div id="searchWrap" style="position:relative;flex-shrink:0;">
+    <input type="text" id="searchInput" placeholder="Entité..." style="background:var(--bg);border:1px solid var(--border2);color:var(--bright);padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;border-radius:3px;outline:none;width:140px;">
+    <div id="searchResults" style="position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border2);border-radius:3px;z-index:100;max-height:180px;overflow-y:auto;display:none;"></div>
+  </div>
 </header>
 
 <div class="mobile-tabs" id="mobileTabs">
@@ -749,7 +794,7 @@ async function updateDetail(code) {
     <a href="${doc}" target="_blank" class="dp-link">↗ Documentation officielle</a>`;
 }
 
-document.getElementById('searchInput').addEventListener('input',e=>{
+const _si=document.getElementById('searchInput');if(_si)_si.addEventListener('input',e=>{
   const q=e.target.value.trim().toLowerCase();const sr=document.getElementById('searchResults');
   if(!q||q.length<2){sr.style.display='none';return;}
   const m=Object.values(byCode).filter(n=>n.id.toLowerCase().includes(q)).slice(0,10);
@@ -757,7 +802,7 @@ document.getElementById('searchInput').addEventListener('input',e=>{
   sr.innerHTML=m.map(n=>`<div class="search-item" onclick="navigateTo('${n.id}');document.getElementById('searchInput').value='';document.getElementById('searchResults').style.display='none';if(isMobile())mobileView('graph')">${n.id}<span style="color:var(--dim);font-size:8px"> ↳${n.parent||'racine'}</span></div>`).join('');
   sr.style.display='block';
 });
-document.addEventListener('click',e=>{if(!document.getElementById('searchWrap').contains(e.target))document.getElementById('searchResults').style.display='none';});
+document.addEventListener('click',e=>{const sw=document.getElementById('searchWrap');const sr=document.getElementById('searchResults');if(sw&&sr&&!sw.contains(e.target))sr.style.display='none';});
 
 // IFC Drop init
 initIFCDrop(
