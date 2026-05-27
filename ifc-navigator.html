@@ -124,23 +124,45 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 
 
 /* ===== THEME ===== */
-:root,[data-theme="dark"]{
-  --bg:#0d1117;--bg2:#141b24;--bg3:#1a2332;
-  --panel:#111820;--border:#1e2d42;--border2:#263548;
-  --text:#a8c4e0;--bright:#ddeeff;--dim:#3d5470;
-  --cyan:#00d4f0;--purple:#8866ff;--green:#00cc66;
-  --pink:#ff3377;--orange:#ff8800;--yellow:#ffcc00;
-  --accent:#00d4f0;--accent2:#8866ff;--accent3:#00cc66;
-  --warn:#ff3377;--text-dim:#3d5470;--text-bright:#ddeeff;
+:root, [data-theme="dark"] {
+  --bg:     #0a0e15;
+  --bg2:    #111820;
+  --bg3:    #18222e;
+  --panel:  #0e1520;
+  --border: #1a2840;
+  --border2:#223050;
+  --text:   #7a9ab8;
+  --bright: #cde0f5;
+  --dim:    #2d4560;
+  --cyan:   #00d4f0;
+  --purple: #8866ff;
+  --green:  #00cc66;
+  --pink:   #ff3377;
+  --orange: #ff8800;
+  --accent: #00d4f0;
+  --accent2:#8866ff;
+  --accent3:#00cc66;
+  --warn:   #ff3377;
 }
-[data-theme="light"]{
-  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8edf4;
-  --panel:#ffffff;--border:#c0d0e0;--border2:#a0b8cc;
-  --text:#244060;--bright:#0a1e30;--dim:#7090a8;
-  --cyan:#0070a0;--purple:#4422aa;--green:#005522;
-  --pink:#aa0044;--orange:#883300;--yellow:#664400;
-  --accent:#0070a0;--accent2:#4422aa;--accent3:#005522;
-  --warn:#aa0044;--text-dim:#7090a8;--text-bright:#0a1e30;
+[data-theme="light"] {
+  --bg:     #eef2f7;
+  --bg2:    #ffffff;
+  --bg3:    #e4eaf2;
+  --panel:  #ffffff;
+  --border: #c0cfe0;
+  --border2:#a0bcd0;
+  --text:   #1a3a5c;
+  --bright: #0a1e2e;
+  --dim:    #6888a8;
+  --cyan:   #005580;
+  --purple: #3311aa;
+  --green:  #004422;
+  --pink:   #880033;
+  --orange: #773300;
+  --accent: #005580;
+  --accent2:#3311aa;
+  --accent3:#004422;
+  --warn:   #880033;
 }
 [data-theme="light"] body{background:var(--bg);}
 [data-theme="light"] svg text{fill:var(--text);}
@@ -260,57 +282,6 @@ header{
 .theme-btn.active::before { background:#000; }
 
 
-/* ===== TYPOGRAPHIE AMÉLIORÉE ===== */
-body { font-weight: 400; }
-.node-name, .ec-name, .tree-node, .filter-label,
-.dp-section-body, .rp-section-body, .detail-section-body {
-  font-weight: 500;
-  color: var(--bright);
-}
-.panel-header, .lp-header, .dp-section-title,
-.rp-section-title, .detail-section-title, .detail-title,
-.rp-title, .dp-title { font-weight: 700; }
-.crumb, .search-item, .bp-filter-btn { font-weight: 500; }
-
-/* Palette/légende responsive au thème */
-#legend {
-  background: var(--panel) !important;
-  border-color: var(--border2) !important;
-  color: var(--text) !important;
-}
-.leg-row { color: var(--text); }
-.ctrl-panel {
-  background: var(--panel) !important;
-  border-color: var(--border2) !important;
-  color: var(--text) !important;
-}
-.ctrl-title { color: var(--dim) !important; }
-.slider-row label, .slider-val { color: var(--text) !important; }
-.legend-item { color: var(--text) !important; }
-
-
-/* ===== TEXTE SOMBRE AMÉLIORÉ ===== */
-:root, [data-theme="dark"] {
-  --text: #b8d0e8;
-  --bright: #e8f4ff;
-  --dim: #4a6880;
-}
-/* Police plus épaisse partout */
-body { -webkit-font-smoothing: antialiased; }
-.node-name, .tree-node, .filter-label,
-.dp-section-body, .detail-section-body,
-.crumb, .search-item, td, .child-link {
-  font-weight: 500 !important;
-  color: var(--text) !important;
-}
-.detail-title, .dp-title, .rp-title,
-.panel-header, .lp-header, .dp-section-title,
-.rp-section-title, .detail-section-title {
-  font-weight: 700 !important;
-  color: var(--bright) !important;
-}
-
-
 /* ===== TEXTE GRAS ===== */
 .node-name, .tree-node .node-name,
 .ec-name, .entity-card .ec-name,
@@ -327,6 +298,30 @@ body { -webkit-font-smoothing: antialiased; }
 .detail-section-title, .logo,
 .bp-title, .ribbon-group-label {
   font-weight: 800 !important;
+}
+
+
+/* ===== TEXTE GLOBAL ===== */
+body, .tree-node, .node-name, td, .filter-label,
+.crumb, .search-item, .child-link, .leg-row,
+.legend-item, .dp-section-body, .rp-section-body,
+.detail-section-body, .entity-card, .ec-name,
+.ec-parent, .filter-count, .bp-filter-btn {
+  color: var(--text);
+  font-weight: 600;
+}
+.detail-title, .dp-title, .rp-title, .logo,
+.panel-header, .lp-header, .bp-title,
+.dp-section-title, .rp-section-title,
+.detail-section-title, .crumb.current,
+.tree-node.present .node-name {
+  color: var(--bright);
+  font-weight: 700;
+}
+.dim, .node-name.dim, .ec-parent,
+.filter-count, .tree-node .node-count,
+.dp-subtitle, .rp-sub {
+  color: var(--dim) !important;
 }
 
 </style>
