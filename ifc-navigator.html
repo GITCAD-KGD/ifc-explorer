@@ -114,101 +114,28 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 .spinner-lg{width:40px;height:40px;border:2px solid #1e2d42;border-top-color:#00e5ff;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* ===== THEME VARIABLES ===== */
-:root,
-[data-theme="dark"] {
-  --bg:      #0d1117;
-  --bg2:     #141b24;
-  --bg3:     #1a2332;
-  --panel:   #111820;
-  --border:  #1e2d42;
-  --border2: #263548;
-  --text:    #a8c4e0;
-  --bright:  #ddeeff;
-  --dim:     #3d5470;
-  --cyan:    #00d4f0;
-  --purple:  #8866ff;
-  --green:   #00cc66;
-  --pink:    #ff3377;
-  --orange:  #ff8800;
-  --yellow:  #ffcc00;
-  --accent:  #00d4f0;
-  --accent2: #8866ff;
-  --accent3: #00cc66;
-  --warn:    #ff3377;
-  --text-dim:#3d5470;
-  --text-bright:#ddeeff;
-  --bg-input:#0d1117;
-}
 
-[data-theme="light"] {
-  --bg:      #f5f7fa;
-  --bg2:     #ffffff;
-  --bg3:     #eef1f6;
-  --panel:   #ffffff;
-  --border:  #c8d6e8;
-  --border2: #aabbd0;
-  --text:    #2c4a6e;
-  --bright:  #0f2840;
-  --dim:     #8aaac8;
-  --cyan:    #006fa8;
-  --purple:  #5533cc;
-  --green:   #006633;
-  --pink:    #cc1155;
-  --orange:  #b85500;
-  --yellow:  #886600;
-  --accent:  #006fa8;
-  --accent2: #5533cc;
-  --accent3: #006633;
-  --warn:    #cc1155;
-  --text-dim:#8aaac8;
-  --text-bright:#0f2840;
-  --bg-input:#f5f7fa;
+/* ===== THEME ===== */
+:root,[data-theme="dark"]{
+  --bg:#0d1117;--bg2:#141b24;--bg3:#1a2332;
+  --panel:#111820;--border:#1e2d42;--border2:#263548;
+  --text:#a8c4e0;--bright:#ddeeff;--dim:#3d5470;
+  --cyan:#00d4f0;--purple:#8866ff;--green:#00cc66;
+  --pink:#ff3377;--orange:#ff8800;--yellow:#ffcc00;
+  --accent:#00d4f0;--accent2:#8866ff;--accent3:#00cc66;
+  --warn:#ff3377;--text-dim:#3d5470;--text-bright:#ddeeff;
 }
-
-/* Force les éléments HTML à hériter du thème */
-[data-theme="light"] body,
-[data-theme="light"] header,
-[data-theme="light"] .panel,
-[data-theme="light"] .center-panel,
-[data-theme="light"] #leftPanel,
-[data-theme="light"] #rightPanel,
-[data-theme="light"] #bottomPanel,
-[data-theme="light"] #ribbon,
-[data-theme="light"] .ctrl-panel,
-[data-theme="light"] .dp-header,
-[data-theme="light"] .rp-header,
-[data-theme="light"] .bp-header,
-[data-theme="light"] .lp-header,
-[data-theme="light"] .panel-header,
-[data-theme="light"] .filter-bar,
-[data-theme="light"] #detailPanel,
-[data-theme="light"] .entity-card,
-[data-theme="light"] .tree-container,
-[data-theme="light"] .detail-content,
-[data-theme="light"] #schemaLoading,
-[data-theme="light"] .ifc-modal-box {
-  background-color: var(--bg2);
+[data-theme="light"]{
+  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8edf4;
+  --panel:#ffffff;--border:#c0d0e0;--border2:#a0b8cc;
+  --text:#244060;--bright:#0a1e30;--dim:#7090a8;
+  --cyan:#0070a0;--purple:#4422aa;--green:#005522;
+  --pink:#aa0044;--orange:#883300;--yellow:#664400;
+  --accent:#0070a0;--accent2:#4422aa;--accent3:#005522;
+  --warn:#aa0044;--text-dim:#7090a8;--text-bright:#0a1e30;
 }
-
-[data-theme="light"] input,
-[data-theme="light"] select,
-[data-theme="light"] .search-wrap input,
-[data-theme="light"] #searchInput,
-[data-theme="light"] .bp-toolbar input {
-  background: var(--bg-input) !important;
-  color: var(--bright) !important;
-  border-color: var(--border) !important;
-}
-
-[data-theme="light"] .tree-node:hover { background: rgba(0,111,168,0.06); }
-[data-theme="light"] .tree-node.selected { background: rgba(0,111,168,0.1); }
-[data-theme="light"] .entity-card:hover { border-color: var(--cyan); }
-[data-theme="light"] .entity-card { background: var(--bg3); }
-[data-theme="light"] table.catalogue th { background: var(--bg3); }
-[data-theme="light"] table.catalogue tr:hover td { background: rgba(0,111,168,0.05); }
-[data-theme="light"] .rbtn:hover { background: rgba(0,111,168,0.08); }
-[data-theme="light"] .ctrl-panel { background: rgba(255,255,255,0.95); }
+[data-theme="light"] body{background:var(--bg);}
+[data-theme="light"] svg text{fill:var(--text);}
 
 /* ===== THEME SWITCHER ===== */
 .theme-switcher {
@@ -235,6 +162,84 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 .theme-btn.active { background: var(--cyan); color: #000; }
 
 
+
+/* ===== HEADER UNIFORME ===== */
+header{
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+}
+.back-link{
+  font-size:10px;color:var(--dim);text-decoration:none;
+  padding:3px 7px;border:1px solid var(--border2);border-radius:3px;
+  white-space:nowrap;flex-shrink:0;
+}
+.back-link:hover{color:var(--cyan);border-color:var(--cyan);}
+.logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:16px;
+  color:var(--cyan);white-space:nowrap;flex-shrink:0;
+}
+.logo span{color:var(--dim);}
+/* View switcher — toujours après le logo */
+.view-switcher{
+  display:flex;gap:2px;flex-shrink:0;
+}
+.view-btn{
+  padding:3px 8px;border-radius:3px;font-size:10px;cursor:pointer;
+  color:var(--dim);border:1px solid var(--border2);background:transparent;
+  font-family:'JetBrains Mono',monospace;text-decoration:none;
+  transition:all 0.15s;white-space:nowrap;
+}
+.view-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+.view-btn.current{background:rgba(0,212,240,0.12);border-color:var(--cyan);color:var(--cyan);}
+/* Theme switcher — juste après view-switcher */
+.theme-switcher{
+  display:flex;gap:2px;flex-shrink:0;
+  background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:2px;
+}
+.theme-btn{
+  padding:2px 6px;border-radius:3px;font-size:12px;line-height:1.4;
+  cursor:pointer;color:var(--dim);border:none;background:transparent;
+  transition:all 0.15s;
+}
+.theme-btn:hover{opacity:0.8;}
+.theme-btn.active{background:var(--cyan);color:#000;}
+/* Séparateur flex */
+.h-sep{flex:1;}
+/* Mode + schema à droite */
+.mode-tabs{
+  display:flex;gap:2px;background:var(--bg);
+  border:1px solid var(--border2);border-radius:4px;padding:2px;flex-shrink:0;
+}
+.mode-tab{
+  padding:3px 9px;border-radius:3px;font-size:10px;cursor:pointer;
+  color:var(--dim);border:none;background:transparent;
+  font-family:'JetBrains Mono',monospace;transition:all 0.15s;
+}
+.mode-tab.active{background:var(--cyan);color:#000;font-weight:600;}
+.schema-select{
+  background:var(--bg);border:1px solid var(--border2);color:var(--text);
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:3px 5px;border-radius:3px;outline:none;flex-shrink:0;
+}
+.schema-select:disabled{opacity:0.3;}
+.drop-btn{
+  padding:3px 9px;border:1px dashed var(--border2);border-radius:3px;
+  font-size:10px;cursor:pointer;color:var(--dim);background:transparent;
+  position:relative;font-family:'JetBrains Mono',monospace;
+  transition:all 0.15s;white-space:nowrap;flex-shrink:0;
+}
+.drop-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.drop-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+#dropStatus{font-size:10px;color:var(--green);white-space:nowrap;flex-shrink:0;}
+#modeLabel{font-size:10px;color:var(--pink);display:none;flex-shrink:0;}
+
 </style>
 </head>
 <body>
@@ -256,30 +261,25 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 <header>
   <a class="back-link" href="index.html">← Accueil</a>
   <div class="logo">IFC<span>/</span>Nav</div>
+  <div class="view-switcher"><a class="view-btn  current" href="ifc-navigator.html">Nav</a><a class="view-btn" href="ifc-explorer.html">Explorer</a><a class="view-btn" href="ifc-graph.html">Graph</a><a class="view-btn" href="ifc-node-editor.html">Nodes</a></div>
   <div class="theme-switcher">
-    <button class="theme-btn" data-theme="dark"  onclick="applyTheme('dark')" title="Sombre">🌙</button>
-    <button class="theme-btn" data-theme="light" onclick="applyTheme('light')" title="Clair">☀️</button>
-    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système">🖥️</button>
+    <button class="theme-btn" data-theme="dark"   onclick="applyTheme('dark')"   title="Sombre">🌙</button>
+    <button class="theme-btn" data-theme="light"  onclick="applyTheme('light')"  title="Clair">☀️</button>
+    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système">🖥</button>
   </div>
-  <div class="view-switcher"><a class="view-btn current" href="ifc-navigator.html">Nav</a><a class="view-btn" href="ifc-explorer.html">Explorer</a><a class="view-btn" href="ifc-graph.html">Graph</a><a class="view-btn" href="ifc-node-editor.html">Nodes</a></div>
+  <div class="h-sep"></div>
   <div class="mode-tabs">
     <button class="mode-tab active" id="tabSchema" onclick="setMode('schema')">Schéma</button>
     <button class="mode-tab" id="tabIfc" onclick="setMode('ifc')">IFC</button>
   </div>
   <select class="schema-select" id="schemaSelect" onchange="onSchemaChange()">
-    <option value="ifc2x3">2x3</option>
-    <option value="ifc4">IFC4</option>
-    <option value="ifc4x3" selected>4.3</option>
+    <option value="ifc2x3">IFC 2x3</option>
+    <option value="ifc4">IFC 4</option>
+    <option value="ifc4x3" selected>IFC 4.3</option>
   </select>
   <div class="drop-btn" id="dropZone">⬡ .ifc<input type="file" id="fileInput" accept=".ifc"></div>
   <div id="dropStatus"></div>
   <div id="modeLabel">◆ IFC</div>
-  <button id="backBtn" disabled onclick="goBack()">← Retour</button>
-  <div id="breadcrumb"></div>
-  <div id="searchWrap">
-    <input type="text" id="searchInput" placeholder="Entité...">
-    <div id="searchResults"></div>
-  </div>
 </header>
 
 <div class="mobile-tabs" id="mobileTabs">
@@ -528,12 +528,22 @@ function toggleDetail(){
 
 async function loadSchemaData(v){
   if(schemaCache[v])return schemaCache[v];
-  document.getElementById('schemaLoading').classList.add('visible');document.getElementById('schemaLoadingLabel').textContent='Chargement schéma '+v+'...';
-  const r=await fetch(SCHEMA_URLS[v]);
-  const d=await r.json();
-  schemaCache[v]=d;
-  document.getElementById('schemaLoading').classList.remove('visible');
-  return d;
+  const sl=document.getElementById('schemaLoading');
+  const ll=document.getElementById('schemaLoadingLabel');
+  if(sl) sl.classList.add('visible');
+  if(ll) ll.textContent='Chargement schéma '+v+'...';
+  try{
+    const resp=await fetch(SCHEMA_URLS[v]);
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const data=await resp.json();
+    schemaCache[v]=data;
+    if(sl) sl.classList.remove('visible');
+    return data;
+  }catch(e){
+    console.error('Schema load error:',e);
+    if(sl) sl.classList.remove('visible');
+    return [];
+  }
 }
 function buildIndex(nodes){
   byCode={};childrenMap={};

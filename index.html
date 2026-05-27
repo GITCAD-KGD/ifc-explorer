@@ -3,43 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IFC Explorer Suite</title>
+<title>IFC Suite</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap');
+:root{--bg:#0d1117;--panel:#111820;--border:#1e2d42;--border2:#263548;--text:#a8c4e0;--bright:#ddeeff;--dim:#3d5470;--cyan:#00d4f0;--green:#00cc66;--pink:#ff3377;--purple:#8866ff;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#07090f;color:#7a9ab8;font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;}
-.container{max-width:600px;padding:40px 20px;text-align:center;}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:36px;color:#00e5ff;margin-bottom:8px;}
-.logo span{color:#283849;}
-.subtitle{font-size:12px;color:#283849;margin-bottom:48px;}
-.cards{display:grid;gap:16px;}
-.card{background:#0c1018;border:1px solid #1e2d42;border-radius:6px;padding:24px;text-decoration:none;color:inherit;transition:all 0.2s;text-align:left;}
-.card:hover{border-color:#00e5ff;background:#0d1420;}
-.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#cde0f5;margin-bottom:6px;}
-.card-desc{font-size:11px;color:#5a7080;line-height:1.7;}
-.card-tag{display:inline-block;margin-top:10px;padding:2px 8px;border-radius:2px;font-size:10px;font-weight:600;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.container{max-width:640px;width:100%;text-align:center;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:40px;color:var(--cyan);margin-bottom:6px;}
+.logo span{color:var(--dim);}
+.subtitle{font-size:11px;color:var(--dim);margin-bottom:48px;letter-spacing:0.5px;}
+.cards{display:grid;gap:12px;}
+.card{
+  background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  padding:20px 24px;text-decoration:none;color:inherit;
+  transition:all 0.2s;text-align:left;display:block;
+}
+.card:hover{border-color:var(--cyan);background:#141b24;}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.card-icon{font-size:22px;flex-shrink:0;}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--bright);}
+.card-desc{font-size:10px;color:var(--dim);line-height:1.8;}
+.card-tag{display:inline-block;margin-top:10px;padding:2px 8px;border-radius:2px;font-size:9px;font-weight:600;border:1px solid;}
+.version-note{margin-top:24px;font-size:10px;color:var(--dim);}
+.version-note span{color:var(--cyan);}
 </style>
 </head>
 <body>
 <div class="container">
   <div class="logo">IFC<span>/</span>Suite</div>
-  <div class="subtitle">Outils pédagogiques · IFC 2x3 · IFC 4 · IFC 4.3</div>
+  <div class="subtitle">Outils pédagogiques · IFC 2x3 · IFC 4 · IFC 4.3 · Thème système · Confidentialité locale</div>
   <div class="cards">
     <a class="card" href="ifc-navigator.html">
-      <div class="card-title">IFC Navigator</div>
-      <div class="card-desc">Navigation contextuelle nœud par nœud. Cliquer sur un sous-type pour en faire le centre. Breadcrumb, recherche, mode schéma ou fichier IFC.</div>
-      <span class="card-tag" style="background:rgba(0,229,255,0.12);color:#00e5ff;">Graphe contextuel</span>
+      <div class="card-header">
+        <div class="card-icon">⬡</div>
+        <div class="card-title">IFC Navigator</div>
+      </div>
+      <div class="card-desc">Navigation contextuelle nœud par nœud. Cliquer sur un sous-type pour en faire le centre. Breadcrumb, recherche, attributs, PSET et QTO dans le détail.</div>
+      <span class="card-tag" style="border-color:#00d4f0;color:#00d4f0;">Graphe contextuel</span>
     </a>
     <a class="card" href="ifc-explorer.html">
-      <div class="card-title">IFC Explorer</div>
-      <div class="card-desc">Arbre hiérarchique + catalogue en grille + panneau de détail. Vue tabulaire, filtres par groupe, recherche dans l'arbre.</div>
-      <span class="card-tag" style="background:rgba(0,230,118,0.12);color:#00e676;">Arbre + catalogue</span>
+      <div class="card-header">
+        <div class="card-icon">☰</div>
+        <div class="card-title">IFC Explorer</div>
+      </div>
+      <div class="card-desc">Arbre hiérarchique + catalogue en grille + panneau de détail complet. Filtres par groupe, recherche dans l'arbre, attributs, PSET et QTO.</div>
+      <span class="card-tag" style="border-color:#00cc66;color:#00cc66;">Arbre + catalogue</span>
     </a>
     <a class="card" href="ifc-graph.html">
-      <div class="card-title">IFC Graph</div>
-      <div class="card-desc">Graphe global de toutes les entités avec simulation physique. Zoom, groupes filtrables, sliders de physique, spotlight par recherche.</div>
-      <span class="card-tag" style="background:rgba(255,64,129,0.12);color:#ff4081;">Graphe global</span>
+      <div class="card-header">
+        <div class="card-icon">◎</div>
+        <div class="card-title">IFC Graph</div>
+      </div>
+      <div class="card-desc">Graphe global de toutes les entités avec simulation physique D3. Zoom, groupes filtrables, sliders de physique, spotlight par recherche.</div>
+      <span class="card-tag" style="border-color:#ff3377;color:#ff3377;">Graphe global</span>
     </a>
+    <a class="card" href="ifc-node-editor.html">
+      <div class="card-header">
+        <div class="card-icon">⊞</div>
+        <div class="card-title">IFC Node Editor</div>
+      </div>
+      <div class="card-desc">Éditeur de nœuds style Dynamo/Grasshopper. Rectangles reliés par splines de Bézier. Ruban de fonctions, filtres, catalogue tabulaire, PSET et QTO complets.</div>
+      <span class="card-tag" style="border-color:#8866ff;color:#8866ff;">Nœuds + splines</span>
+    </a>
+  </div>
+  <div class="version-note">
+    Schémas extraits depuis <span>buildingSMART</span> · 
+    Données locales uniquement (<span>sessionStorage</span>) · 
+    Aucune donnée transmise
   </div>
 </div>
 </body>
