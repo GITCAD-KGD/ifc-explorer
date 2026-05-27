@@ -279,7 +279,7 @@ header{
 <body>
 <div id="schemaLoading">
   <div class="spinner-lg"></div>
-  <div class="schema-loading-title">IFC<span style="color:#283849">/</span>Navigator</div>
+  <div class="schema-loading-title">IFC<span style="color:#283849">/</span>Graph</div>
   <div class="schema-loading-sub" id="schemaLoadingLabel">Chargement du schéma IFC...</div>
 </div>
 <div id="ifcModal">
@@ -521,24 +521,31 @@ Object.entries(GROUPS).forEach(([key,g])=>{
   legendEl.appendChild(div);
 });
 
-async function loadSchemaData(v){
-  if(schemaCache[v])return schemaCache[v];
+function loadSchemaData(v){
+  if(schemaCache[v]) return Promise.resolve(schemaCache[v]);
   const sl=document.getElementById('schemaLoading');
   const ll=document.getElementById('schemaLoadingLabel');
+  const hideSpinner=()=>{if(sl)sl.classList.remove('visible');};
   if(sl) sl.classList.add('visible');
   if(ll) ll.textContent='Chargement schéma '+v+'...';
-  try{
-    const resp=await fetch(SCHEMA_URLS[v]);
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const data=await resp.json();
-    schemaCache[v]=data;
-    if(sl) sl.classList.remove('visible');
-    return data;
-  }catch(e){
-    console.error('Schema load error:',e);
-    if(sl) sl.classList.remove('visible');
-    return [];
-  }
+  return new Promise((resolve)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('GET', SCHEMA_URLS[v], true);
+    xhr.timeout=12000;
+    xhr.onload=function(){
+      hideSpinner();
+      if(xhr.status===200){
+        try{
+          const data=JSON.parse(xhr.responseText);
+          schemaCache[v]=data;
+          resolve(data);
+        }catch(e){ console.warn('Parse error:',e); resolve([]); }
+      } else { console.warn('HTTP',xhr.status); resolve([]); }
+    };
+    xhr.onerror=function(){ hideSpinner(); console.warn('XHR error'); resolve([]); };
+    xhr.ontimeout=function(){ hideSpinner(); console.warn('XHR timeout'); resolve([]); };
+    xhr.send();
+  });
 }
 async function setMode(m){
   mode=m;
@@ -634,6 +641,13 @@ function loadIFC(file) {
 
 // INIT
 applyTheme(sessionStorage.getItem('ifc_theme')||'system');
+
+// Sécurité: retirer le spinner après 10s quoi qu'il arrive
+setTimeout(()=>{
+  const sl=document.getElementById('schemaLoading');
+  if(sl) sl.classList.remove('visible');
+},10000);
+
 (async()=>{const data=await loadSchemaData('ifc4x3');buildGraph(data);})();
 
 function togglePalette() {

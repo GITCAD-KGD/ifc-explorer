@@ -697,24 +697,28 @@ function toggleDetail(){
   btn.textContent=dp.classList.contains('collapsed')?'›':'‹';
 }
 
-async function loadSchemaData(v){
-  if(schemaCache[v])return schemaCache[v];
+function loadSchemaData(v){
+  if(schemaCache[v]) return Promise.resolve(schemaCache[v]);
   const sl=document.getElementById('schemaLoading');
   const ll=document.getElementById('schemaLoadingLabel');
+  const hideSpinner=()=>{if(sl)sl.classList.remove('visible');};
   if(sl) sl.classList.add('visible');
   if(ll) ll.textContent='Chargement schéma '+v+'...';
-  try{
-    const resp=await fetch(SCHEMA_URLS[v]);
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const data=await resp.json();
-    schemaCache[v]=data;
-    if(sl) sl.classList.remove('visible');
-    return data;
-  }catch(e){
-    console.error('Schema load error:',e);
-    if(sl) sl.classList.remove('visible');
-    return [];
-  }
+  return new Promise((resolve)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('GET', SCHEMA_URLS[v], true);
+    xhr.timeout=12000;
+    xhr.onload=function(){
+      hideSpinner();
+      if(xhr.status===200){
+        try{ const data=JSON.parse(xhr.responseText); schemaCache[v]=data; resolve(data); }
+        catch(e){ resolve([]); }
+      } else { resolve([]); }
+    };
+    xhr.onerror=function(){ hideSpinner(); resolve([]); };
+    xhr.ontimeout=function(){ hideSpinner(); resolve([]); };
+    xhr.send();
+  });
 }
 function buildIndex(nodes){
   byCode={};childrenMap={};
