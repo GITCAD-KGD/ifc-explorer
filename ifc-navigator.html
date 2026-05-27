@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script>
+(function(){
+  var t=sessionStorage.getItem('ifc_theme')||'system';
+  var dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.setAttribute('data-theme', t==='system'?(dark?'dark':'light'):t);
+})();
+</script>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IFC Navigator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
@@ -300,6 +308,25 @@ body { -webkit-font-smoothing: antialiased; }
 .rp-section-title, .detail-section-title {
   font-weight: 700 !important;
   color: var(--bright) !important;
+}
+
+
+/* ===== TEXTE GRAS ===== */
+.node-name, .tree-node .node-name,
+.ec-name, .entity-card .ec-name,
+.dp-section-body, .rp-section-body,
+.detail-section-body, .filter-label,
+.crumb, .search-item, td,
+.child-link, .leg-row,
+.ctrl-panel, .legend-item {
+  font-weight: 600 !important;
+}
+.detail-title, .dp-title, .rp-title,
+.panel-header, .lp-header,
+.dp-section-title, .rp-section-title,
+.detail-section-title, .logo,
+.bp-title, .ribbon-group-label {
+  font-weight: 800 !important;
 }
 
 </style>
@@ -711,7 +738,7 @@ function renderGraph(code){
 }
 
 function navigateTo(code){if(!byCode[code])return;if(code!==currentNode){history.push(currentNode);const _bb2=document.getElementById('backBtn');if(_bb2)_bb2.disabled=false;}currentNode=code;renderGraph(code);updateBreadcrumb();}
-function goBack(){if(!history.length)return;currentNode=history.pop();if(!history.length)const _bb=document.getElementById('backBtn');if(_bb)_bb.disabled=true;renderGraph(currentNode);updateBreadcrumb();}
+function goBack(){if(!history.length)return;currentNode=history.pop();if(!history.length){const _bb=document.getElementById('backBtn');if(_bb)_bb.disabled=true;}renderGraph(currentNode);updateBreadcrumb();}
 function updateBreadcrumb(){const chain=[...history,currentNode].slice(-4);document.getElementById('breadcrumb').innerHTML=chain.map((c,i)=>{const cur=i===chain.length-1;return`${i>0?'<span class="crumb-sep">›</span>':''}<span class="crumb ${cur?'current':''}" ${!cur?`onclick="jumpTo('${c}')"`:''}>${c}</span>`;}).join('');}
 function jumpTo(code){const i=history.indexOf(code);if(i!==-1)history=history.slice(0,i);currentNode=code;const _bb3=document.getElementById('backBtn');if(_bb3)_bb3.disabled=history.length===0;renderGraph(code);updateBreadcrumb();}
 
@@ -862,8 +889,8 @@ initIFCDrop(
 })();
 
 window.addEventListener('resize',()=>{if(currentNode)renderGraph(currentNode);});
-// Init thème dès que possible
-applyTheme(sessionStorage.getItem('ifc_theme')||'system');
+// Init thème après DOM
+window.addEventListener('load', () => applyTheme(sessionStorage.getItem('ifc_theme')||'system'));
 loadSchema('ifc4x3');
 </script>
 </body>
