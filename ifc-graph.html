@@ -566,6 +566,13 @@ async function buildIfcGraph(){
 }
 
 console.log('D3 version:',d3.version);
+// Vérifier dimensions SVG après chargement
+window.addEventListener('load',()=>{
+  const s=document.getElementById('graphSvg');
+  console.log('SVG size:',s.clientWidth,'x',s.clientHeight);
+  const wrap=s.parentElement;
+  console.log('Wrap size:',wrap.clientWidth,'x',wrap.clientHeight);
+});
 const svg=d3.select('#graphSvg');
 const mainG=svg.append('g');
 const zoom=d3.zoom().scaleExtent([0.05,8]).on('zoom',e=>mainG.attr('transform',e.transform));
@@ -627,6 +634,16 @@ function buildGraph(rawNodes){
   window._node=node;window._link=link;
   updateVisibility();
   console.log('After updateVisibility, first node display:',node.size()>0?node.filter((d,i)=>i===0).style('display'):'no nodes');
+setTimeout(()=>{
+  if(window._node && window._node.size()>0){
+    const d=window._node.data()[0];
+    console.log('First node pos after 1s:',d?{x:Math.round(d.x),y:Math.round(d.y)}:'?');
+    const s=document.getElementById('graphSvg');
+    console.log('SVG viewBox:',s.getAttribute('viewBox'));
+    const g=document.getElementById('graphSvg').querySelector('g');
+    console.log('mainG transform:',g?g.getAttribute('transform'):'no g');
+  }
+},1000);
 }
 function updateVisibility(){if(!window._node)return;window._node.style('display',d=>activeGroups.has(d.group)?null:'none');window._link.style('display',d=>{const s=typeof d.source==='object'?d.source:{};const t=typeof d.target==='object'?d.target:{};return activeGroups.has(s.group)&&activeGroups.has(t.group)?null:'none';});}
 function highlightConnected(sel,node,link){const conn=new Set([sel.id]);link.each(d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;if(s===sel.id)conn.add(t);if(t===sel.id)conn.add(s);});node.select('.node-circle').attr('fill-opacity',d=>conn.has(d.id)?1:0.06).attr('r',d=>d.id===sel.id?getNodeRadius(d)*1.8:getNodeRadius(d));link.attr('stroke',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?'#00e5ff':'#0e1622';}).attr('stroke-width',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?2:0.5;}).attr('opacity',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return(s===sel.id||t===sel.id)?1:0.04;});}
