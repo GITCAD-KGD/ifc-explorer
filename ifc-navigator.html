@@ -88,13 +88,78 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
   #searchInput{width:110px;}
   .schema-select{font-size:9px;padding:2px 4px;}
 }
+/* ===== IFC LOAD MODAL ===== */
+#ifcModal{position:fixed;inset:0;background:rgba(6,8,16,0.92);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(8px);display:none;}
+#ifcModal.visible{display:flex;}
+.ifc-modal-box{background:#0c1018;border:1px solid #1e2d42;border-radius:6px;padding:28px 32px;width:340px;text-align:center;}
+.ifc-modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#00e5ff;margin-bottom:6px;}
+.ifc-modal-sub{font-size:10px;color:#283849;margin-bottom:20px;}
+.ifc-modal-filename{font-size:11px;color:#7a9ab8;margin-bottom:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.progress-track{height:4px;background:#161e2c;border-radius:2px;overflow:hidden;margin-bottom:12px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#00e5ff,#7c4dff);border-radius:2px;width:0%;transition:width 0.2s;}
+.progress-pct{font-size:11px;color:#00e5ff;font-weight:600;}
+.ifc-modal-status{font-size:10px;color:#283849;margin-top:8px;}
+
+/* ===== VIEW SWITCHER ===== */
+.view-switcher{display:flex;gap:2px;margin-left:auto;}
+.view-btn{padding:3px 9px;border-radius:3px;font-size:10px;cursor:pointer;color:#283849;border:1px solid #1e2d42;background:transparent;font-family:'JetBrains Mono',monospace;text-decoration:none;transition:all 0.15s;white-space:nowrap;}
+.view-btn:hover{color:#00e5ff;border-color:#00e5ff;}
+.view-btn.current{background:rgba(0,229,255,0.1);border-color:#00e5ff;color:#00e5ff;}
+
+/* ===== SCHEMA LOADING OVERLAY ===== */
+#schemaLoading{position:fixed;inset:0;background:rgba(6,8,16,0.96);display:none;align-items:center;justify-content:center;z-index:900;flex-direction:column;gap:16px;backdrop-filter:blur(4px);}
+#schemaLoading.visible{display:flex;}
+.schema-loading-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#00e5ff;}
+.schema-loading-sub{font-size:11px;color:#283849;}
+.spinner-lg{width:40px;height:40px;border:2px solid #1e2d42;border-top-color:#00e5ff;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ===== THEMES ===== */
+:root{
+  --bg:#07090f;--panel:#0c1018;--border:#161e2c;--border2:#1e2d42;
+  --text:#7a9ab8;--bright:#cde0f5;--dim:#283849;
+  --cyan:#00e5ff;--purple:#7c4dff;--green:#00e676;--pink:#ff4081;--orange:#ff9100;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8;--panel:#ffffff;--border:#d0dce8;--border2:#b0c4d8;
+  --text:#3a5068;--bright:#1a2e40;--dim:#8aa0b8;
+  --cyan:#0088bb;--purple:#5522cc;--green:#007744;--pink:#cc2255;--orange:#cc6600;
+}
+[data-theme="system"]{}
+
+/* ===== THEME SWITCHER WIDGET ===== */
+.theme-switcher{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:2px;flex-shrink:0;}
+.theme-btn{padding:3px 8px;border-radius:3px;font-size:10px;cursor:pointer;color:var(--dim);border:none;background:transparent;font-family:'JetBrains Mono',monospace;transition:all 0.15s;line-height:1;}
+.theme-btn:hover{color:var(--cyan);}
+.theme-btn.active{background:var(--cyan);color:#000;font-weight:600;}
+
 </style>
 </head>
 <body>
-<div id="loading"><div class="spinner"></div>Chargement...</div>
+<div id="schemaLoading">
+  <div class="spinner-lg"></div>
+  <div class="schema-loading-title">IFC<span style="color:#283849">/</span>Navigator</div>
+  <div class="schema-loading-sub" id="schemaLoadingLabel">Chargement du schéma IFC...</div>
+</div>
+<div id="ifcModal">
+  <div class="ifc-modal-box">
+    <div class="ifc-modal-title">Chargement IFC</div>
+    <div class="ifc-modal-sub">Analyse en cours — les données restent locales</div>
+    <div class="ifc-modal-filename" id="modalFilename">–</div>
+    <div class="progress-track"><div class="progress-fill" id="modalProgress"></div></div>
+    <div class="progress-pct" id="modalPct">0%</div>
+    <div class="ifc-modal-status" id="modalStatus">Lecture du fichier...</div>
+  </div>
+</div>
 <header>
   <a class="back-link" href="index.html">← Accueil</a>
   <div class="logo">IFC<span>/</span>Nav</div>
+  <div class="theme-switcher">
+    <button class="theme-btn" data-theme="dark"  onclick="applyTheme('dark')" title="Sombre">◑</button>
+    <button class="theme-btn" data-theme="light" onclick="applyTheme('light')" title="Clair">○</button>
+    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système">◐</button>
+  </div>
+  <div class="view-switcher"><a class="view-btn current" href="ifc-navigator.html">Nav</a><a class="view-btn" href="ifc-explorer.html">Explorer</a><a class="view-btn" href="ifc-graph.html">Graph</a><a class="view-btn" href="ifc-node-editor.html">Nodes</a></div>
   <div class="mode-tabs">
     <button class="mode-tab active" id="tabSchema" onclick="setMode('schema')">Schéma</button>
     <button class="mode-tab" id="tabIfc" onclick="setMode('ifc')">IFC</button>
@@ -146,6 +211,188 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 </div>
 
 <script>
+// ===== THEME MANAGER =====
+const THEME_KEY = 'ifc_theme';
+
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  } else {
+    root.setAttribute('data-theme', theme);
+  }
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+  sessionStorage.setItem(THEME_KEY, theme);
+}
+
+function initTheme() {
+  const saved = sessionStorage.getItem(THEME_KEY) || 'system';
+  applyTheme(saved);
+  // Écouter les changements système
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (sessionStorage.getItem(THEME_KEY) === 'system') applyTheme('system');
+  });
+}
+
+// HTML du widget à insérer dans le header
+function themeSwitcherHTML() {
+  return `<div class="theme-switcher">
+    <button class="theme-btn" data-theme="dark"  onclick="applyTheme('dark')">◑</button>
+    <button class="theme-btn" data-theme="light" onclick="applyTheme('light')">○</button>
+    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')">◐</button>
+  </div>`;
+}
+
+// ===== SHARED IFC STATE (sessionStorage) =====
+// Clés sessionStorage
+const SS_KEY_ENTITIES = 'ifc_entities';
+const SS_KEY_VERSION  = 'ifc_version';
+const SS_KEY_FILENAME = 'ifc_filename';
+const SS_KEY_COUNT    = 'ifc_count';
+
+function saveIFCState(entities, version, filename) {
+  try {
+    sessionStorage.setItem(SS_KEY_ENTITIES, JSON.stringify(entities));
+    sessionStorage.setItem(SS_KEY_VERSION,  version);
+    sessionStorage.setItem(SS_KEY_FILENAME, filename);
+    sessionStorage.setItem(SS_KEY_COUNT,    Object.keys(entities).length);
+  } catch(e) { console.warn('sessionStorage write failed', e); }
+}
+
+function loadIFCState() {
+  try {
+    const entities = JSON.parse(sessionStorage.getItem(SS_KEY_ENTITIES) || 'null');
+    const version  = sessionStorage.getItem(SS_KEY_VERSION);
+    const filename = sessionStorage.getItem(SS_KEY_FILENAME);
+    const count    = sessionStorage.getItem(SS_KEY_COUNT);
+    if (!entities) return null;
+    return { entities, version, filename, count: parseInt(count) };
+  } catch(e) { return null; }
+}
+
+function clearIFCState() {
+  [SS_KEY_ENTITIES, SS_KEY_VERSION, SS_KEY_FILENAME, SS_KEY_COUNT].forEach(k => sessionStorage.removeItem(k));
+}
+
+// ===== CHUNKED IFC PARSER =====
+// Lit le fichier par blocs pour éviter de bloquer l'UI
+// Retourne { entities, version } via callbacks onProgress(pct) + onDone(result)
+function parseIFCChunked(file, onProgress, onDone) {
+  const CHUNK = 8 * 1024 * 1024; // 8 MB par chunk
+  const total = file.size;
+  let offset = 0;
+  const entities = {};
+  let version = 'ifc4x3';
+  let headerRead = false;
+  let remainder = '';
+
+  const rx = /=#\d+=\s*(IFC[A-Z0-9]+)\s*\(/g;
+  const vRx = /IFC2X3|IFC4X3|IFC4/i;
+
+  function processChunk() {
+    if (offset >= total) {
+      onDone({ entities, version });
+      return;
+    }
+    const blob = file.slice(offset, offset + CHUNK);
+    const reader = new FileReader();
+    reader.onload = e => {
+      let text = remainder + e.target.result;
+      // Détecter version depuis l'en-tête
+      if (!headerRead && offset < 2000) {
+        const m = text.match(vRx);
+        if (m) {
+          const v = m[0].toUpperCase();
+          version = v === 'IFC2X3' ? 'ifc2x3' : v === 'IFC4X3' ? 'ifc4x3' : 'ifc4';
+        }
+        headerRead = true;
+      }
+      // Parser les entités
+      let match;
+      rx.lastIndex = 0;
+      while ((match = rx.exec(text)) !== null) {
+        const k = match[1].toUpperCase();
+        entities[k] = (entities[k] || 0) + 1;
+      }
+      // Garder la fin pour le prochain chunk (éviter de couper une ligne)
+      const lastNL = text.lastIndexOf('\n');
+      remainder = lastNL >= 0 ? text.slice(lastNL + 1) : '';
+      offset += CHUNK;
+      onProgress(Math.min(99, Math.round((offset / total) * 100)));
+      // Yield au browser pour ne pas bloquer l'UI
+      setTimeout(processChunk, 0);
+    };
+    reader.readAsText(blob);
+  }
+  processChunk();
+}
+
+
+// ===== IFC DROP HANDLING =====
+function initIFCDrop(dropEl, fileInputEl, onLoaded) {
+  dropEl.addEventListener('dragover', e => { e.preventDefault(); dropEl.classList.add('drag-over'); });
+  dropEl.addEventListener('dragleave', () => dropEl.classList.remove('drag-over'));
+  dropEl.addEventListener('drop', e => {
+    e.preventDefault(); dropEl.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f && f.name.toLowerCase().endsWith('.ifc')) startIFCLoad(f, onLoaded);
+  });
+  if (fileInputEl) {
+    fileInputEl.addEventListener('change', e => {
+      if (e.target.files[0]) startIFCLoad(e.target.files[0], onLoaded);
+    });
+  }
+}
+
+function startIFCLoad(file, onLoaded) {
+  const modal = document.getElementById('ifcModal');
+  const fnEl  = document.getElementById('modalFilename');
+  const pctEl = document.getElementById('modalPct');
+  const barEl = document.getElementById('modalProgress');
+  const stEl  = document.getElementById('modalStatus');
+
+  modal.classList.add('visible');
+  fnEl.textContent = file.name;
+  pctEl.textContent = '0%';
+  barEl.style.width = '0%';
+  stEl.textContent = 'Lecture du fichier...';
+
+  parseIFCChunked(file,
+    pct => {
+      barEl.style.width = pct + '%';
+      pctEl.textContent = pct + '%';
+      stEl.textContent = pct < 30 ? 'Lecture du fichier...'
+        : pct < 70 ? 'Analyse des entités...'
+        : 'Finalisation...';
+    },
+    result => {
+      barEl.style.width = '100%';
+      pctEl.textContent = '100%';
+      stEl.textContent = `✓ ${Object.keys(result.entities).length} types trouvés`;
+      saveIFCState(result.entities, result.version, file.name);
+      setTimeout(() => {
+        modal.classList.remove('visible');
+        onLoaded(result);
+      }, 600);
+    }
+  );
+}
+
+function updateDropStatus(state) {
+  const el = document.getElementById('dropStatus');
+  if (!el) return;
+  if (state) {
+    el.textContent = `◆ ${state.filename.slice(0, 20)} (${state.count} types)`;
+    el.style.color = '#00e676';
+  } else {
+    el.textContent = '';
+  }
+}
+
+
 
 const PSET_URLS = {
   ifc4x3: 'psets-ifc4x3.json'
@@ -188,11 +435,11 @@ function toggleDetail(){
 
 async function loadSchemaData(v){
   if(schemaCache[v])return schemaCache[v];
-  document.getElementById('loading').style.display='flex';
+  document.getElementById('schemaLoading').classList.add('visible');document.getElementById('schemaLoadingLabel').textContent='Chargement schéma '+v+'...';
   const r=await fetch(SCHEMA_URLS[v]);
   const d=await r.json();
   schemaCache[v]=d;
-  document.getElementById('loading').style.display='none';
+  document.getElementById('schemaLoading').classList.remove('visible');
   return d;
 }
 function buildIndex(nodes){
@@ -409,20 +656,30 @@ document.getElementById('searchInput').addEventListener('input',e=>{
 });
 document.addEventListener('click',e=>{if(!document.getElementById('searchWrap').contains(e.target))document.getElementById('searchResults').style.display='none';});
 
-document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])loadIFC(e.target.files[0]);});
-function loadIFC(file){
-  document.getElementById('dropStatus').textContent='...';
-  const r=new FileReader();
-  r.onload=e=>{
-    const h=e.target.result.slice(0,500),v=h.match(/IFC2X3|IFC4X3|IFC4/i);
-    if(v){const vv=v[0].toUpperCase();currentSchema=vv==='IFC2X3'?'ifc2x3':vv==='IFC4X3'?'ifc4x3':'ifc4';document.getElementById('schemaSelect').value=currentSchema;}
-    const rx=/=#\d+=\s*(IFC[A-Z0-9]+)\s*\(/gi;let m;modelEntities={};
-    while((m=rx.exec(e.target.result))!==null){const k=m[1].toUpperCase();modelEntities[k]=(modelEntities[k]||0)+1;}
-    document.getElementById('dropStatus').textContent=`✓${Object.keys(modelEntities).length}`;
+// IFC Drop init
+initIFCDrop(
+  document.getElementById('dropZone'),
+  document.getElementById('fileInput'),
+  result => {
+    modelEntities = result.entities;
+    currentSchema = result.version;
+    document.getElementById('schemaSelect').value = currentSchema;
+    updateDropStatus({ filename: result.filename || sessionStorage.getItem('ifc_filename'), count: Object.keys(result.entities).length });
     setMode('ifc');
-  };
-  r.readAsText(file);
-}
+  }
+);
+
+// Restaurer état IFC depuis sessionStorage
+(function restoreIFC() {
+  const state = loadIFCState();
+  if (!state) return;
+  modelEntities = state.entities;
+  currentSchema = state.version || 'ifc4x3';
+  document.getElementById('schemaSelect').value = currentSchema;
+  updateDropStatus(state);
+  // Basculer en mode IFC si données présentes
+  setTimeout(() => setMode('ifc'), 100);
+})();
 
 window.addEventListener('resize',()=>{if(currentNode)renderGraph(currentNode);});
 loadSchema('ifc4x3');
