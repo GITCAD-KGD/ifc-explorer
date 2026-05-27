@@ -636,12 +636,12 @@ async function setMode(m){
   else{if(!Object.keys(modelEntities).length){alert('Charger un .ifc d\'abord');setMode('schema');return;}await buildIfcMode();}
 }
 async function onSchemaChange(){currentSchema=document.getElementById('schemaSelect').value;if(mode==='schema')await loadSchema(currentSchema);}
-async function loadSchema(v){const ns=await loadSchemaData(v);buildIndex(ns);selectedCode=null;renderTree();renderDetail(null);}
+async function loadSchema(v){const ns=await loadSchemaData(v);buildIndex(ns);selectedCode=null;renderTree();renderGrid();renderDetail(null);}
 async function buildIfcMode(){
   const ref=await loadSchemaData(currentSchema);const tmp={};ref.forEach(n=>tmp[n.id]=n);
   const keep=new Set();
   Object.keys(modelEntities).forEach(c=>{let cur=c;while(cur&&tmp[cur]){keep.add(cur);cur=tmp[cur].parent;}});
-  buildIndex(ref.filter(n=>keep.has(n.id)));selectedCode=null;renderTree();renderDetail(null);
+  buildIndex(ref.filter(n=>keep.has(n.id)));selectedCode=null;renderTree();renderGrid();renderDetail(null);
 }
 
 function renderTree(){
