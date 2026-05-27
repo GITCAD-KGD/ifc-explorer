@@ -335,6 +335,57 @@ body, .tree-node, .node-name, td, .filter-label,
 /* Légende texte */
 #legend .leg-row { color: var(--text); font-weight: 600; }
 
+
+/* ===== CLASSES SÉMANTIQUES — pas de couleur inline dans le JS ===== */
+.color-accent  { color: var(--cyan) !important; }
+.color-present { color: var(--pink) !important; }
+.color-bright  { color: var(--bright) !important; font-weight: 600; }
+.color-dim     { color: var(--dim) !important; }
+.link-parent   { color: var(--purple); cursor: pointer; font-weight: 600; }
+.link-parent:hover { text-decoration: underline; }
+.link-child    { color: var(--green); cursor: pointer; font-weight: 600; }
+.link-child:hover  { text-decoration: underline; }
+.link-present  { color: var(--pink); cursor: pointer; font-weight: 600; }
+.link-present:hover { text-decoration: underline; }
+.t-str   { color: var(--dim); }
+.t-num   { color: var(--orange); }
+.t-bool  { color: var(--green); }
+.t-ref   { color: var(--purple); }
+.t-enum  { color: #cc88ff; }
+.t-dim   { color: var(--dim); font-size: 9px; }
+.t-required { color: var(--pink); font-weight: 700; }
+.attr-table { width: 100%; border-collapse: collapse; }
+.attr-table tr { border-bottom: 1px solid var(--border); }
+.attr-table td { padding: 3px 0; font-size: 10px; }
+.attr-table td:first-child { width: 55%; }
+.pset-block { margin-bottom: 8px; }
+.pset-name  { color: var(--cyan); font-size: 10px; font-weight: 700; margin-bottom: 3px; }
+.qto-name   { color: var(--orange); font-size: 10px; font-weight: 700; margin-bottom: 3px; }
+.prop-row   { padding: 2px 0 2px 8px; border-left: 1px solid var(--border2); margin-bottom: 2px; font-size: 10px; }
+.prop-def   { font-size: 9px; margin-top: 1px; }
+.subtype-row { margin-bottom: 3px; font-size: 10px; }
+/* Dp-body hérite de --text par défaut */
+.dp-body, .dp-body * { color: var(--text); }
+.dp-body .color-bright { color: var(--bright) !important; }
+.dp-body .color-dim    { color: var(--dim) !important; }
+.dp-body .color-accent { color: var(--cyan) !important; }
+.dp-body .color-present{ color: var(--pink) !important; }
+.dp-body .link-parent  { color: var(--purple) !important; }
+.dp-body .link-child   { color: var(--green) !important; }
+.dp-body .link-present { color: var(--pink) !important; }
+.dp-body .t-num        { color: var(--orange) !important; }
+.dp-body .t-enum       { color: #cc88ff !important; }
+.dp-body .t-ref        { color: var(--purple) !important; }
+
+
+/* Légende — couleurs fixes indépendantes du thème */
+#legend { background: var(--panel); border: 1px solid var(--border2); }
+#legend .leg-row { color: var(--text); font-weight: 600; font-size: 10px; }
+.leg-dot-active   { background: #00d4f0 !important; }
+.leg-dot-parent   { background: #8866ff !important; }
+.leg-dot-child    { background: #00cc66 !important; }
+.leg-dot-present  { background: #ff3377 !important; }
+
 </style>
 </head>
 <body>
@@ -393,10 +444,10 @@ body, .tree-node, .node-name, td, .filter-label,
     <svg id="graphSvg"></svg>
     <div id="nodeCount"></div>
     <div id="legend">
-      <div class="leg-row"><div class="leg-dot" style="background:var(--cyan)"></div>Actif</div>
-      <div class="leg-row"><div class="leg-dot" style="background:var(--purple)"></div>Parent</div>
-      <div class="leg-row"><div class="leg-dot" style="background:var(--green)"></div>Enfants</div>
-      <div class="leg-row"><div class="leg-dot" style="background:var(--pink)"></div>Dans IFC</div>
+      <div class="leg-row"><div class="leg-dot leg-dot-active"></div>Actif</div>
+      <div class="leg-row"><div class="leg-dot leg-dot-parent"></div>Parent</div>
+      <div class="leg-row"><div class="leg-dot leg-dot-child"></div>Enfants</div>
+      <div class="leg-row"><div class="leg-dot leg-dot-present"></div>Dans IFC</div>
     </div>
   </div>
 
@@ -723,7 +774,7 @@ function renderGraph(code){
     .force('collision',d3.forceCollide().radius(d=>nRadius(d)+26))
     .alphaDecay(0.025).velocityDecay(0.45);
   const link=mainG.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke',d=>d.type==='parent'?'#261545':'#0d2518')
+    .attr('stroke',d=>d.type==='parent'?'rgba(136,102,255,0.5)':'rgba(74,104,136,0.4)')
     .attr('stroke-width',d=>d.type==='parent'?1.5:1)
     .attr('stroke-dasharray',d=>d.type==='parent'?'4,3':null);
   const node=mainG.append('g').selectAll('g').data(nodes).join('g').style('cursor',d=>d.role!=='center'?'pointer':'default')
@@ -739,7 +790,34 @@ function renderGraph(code){
   node.filter(d=>modelEntities[d.id.toUpperCase()]).append('text').text(d=>`◆${modelEntities[d.id.toUpperCase()]}`).attr('text-anchor','middle').attr('dy',d=>nRadius(d)+24).attr('font-family','JetBrains Mono,monospace').attr('font-size','8px').attr('fill','#ff4081').attr('pointer-events','none');
   node.filter(d=>d.role!=='center').on('click',(event,d)=>{event.stopPropagation();navigateTo(d.id);if(isMobile())mobileView('detail');});
   node.on('mouseover',(e,d)=>d3.select(e.currentTarget).select('circle').attr('fill-opacity',0.4)).on('mouseout',(e,d)=>d3.select(e.currentTarget).select('circle').attr('fill-opacity',d.role==='center'?0.15:0.18));
-  simulation.on('tick',()=>{link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);node.attr('transform',d=>`translate(${d.x},${d.y})`);});
+  simulation.on('tick',()=>{
+    link
+      .attr('x1',d=>{
+        const r=nRadius(d.source);
+        const dx=d.target.x-d.source.x, dy=d.target.y-d.source.y;
+        const dist=Math.sqrt(dx*dx+dy*dy)||1;
+        return d.source.x+dx/dist*r;
+      })
+      .attr('y1',d=>{
+        const r=nRadius(d.source);
+        const dx=d.target.x-d.source.x, dy=d.target.y-d.source.y;
+        const dist=Math.sqrt(dx*dx+dy*dy)||1;
+        return d.source.y+dy/dist*r;
+      })
+      .attr('x2',d=>{
+        const r=nRadius(d.target)+2;
+        const dx=d.target.x-d.source.x, dy=d.target.y-d.source.y;
+        const dist=Math.sqrt(dx*dx+dy*dy)||1;
+        return d.target.x-dx/dist*r;
+      })
+      .attr('y2',d=>{
+        const r=nRadius(d.target)+2;
+        const dx=d.target.x-d.source.x, dy=d.target.y-d.source.y;
+        const dist=Math.sqrt(dx*dx+dy*dy)||1;
+        return d.target.y-dy/dist*r;
+      });
+    node.attr('transform',d=>`translate(${d.x},${d.y})`);
+  });
   updateDetail(code);
 }
 
@@ -758,116 +836,107 @@ async function updateDetail(code) {
     ? `https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/${code.toLowerCase()}.htm`
     : `https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/${code}.htm`;
 
-  document.getElementById('dp-title').textContent = code;
-  document.getElementById('dp-title').style.color = cnt ? '#ff4081' : '#00e5ff';
-  document.getElementById('dp-subtitle').textContent = n.name || '';
-
-  // Charger PSET en parallèle
-  const psetData = await loadPsetData(currentSchema);
-  const classData = psetData[code] || {};
-  const attrs = classData.a || [];
-  const psets = classData.p || {};
-  const qtos = classData.q || {};
+  const pdata = await loadPsetData(currentSchema);
+  const cd = pdata[code] || {};
+  const attrs = cd.a || [], psets = cd.p || {}, qtos = cd.q || {};
 
   const typeLabel = t => {
-    if (t === 'str') return '<span style="color:#5a7080">string</span>';
-    if (t === 'num') return '<span style="color:#ff9100">number</span>';
-    if (t === 'bool') return '<span style="color:#76ff03">boolean</span>';
-    if (t === 'int') return '<span style="color:#ff9100">integer</span>';
-    if (t.startsWith('ref:')) return `<span style="color:#7c4dff">${t.slice(4)}</span>`;
+    if (t === 'str')  return '<span class="t-str">string</span>';
+    if (t === 'num')  return '<span class="t-num">number</span>';
+    if (t === 'bool') return '<span class="t-bool">boolean</span>';
+    if (t === 'int')  return '<span class="t-num">integer</span>';
+    if (t.startsWith('ref:'))  return `<span class="t-ref">${t.slice(4)}</span>`;
     if (t.startsWith('enum:')) {
-      const vals = t.slice(5).split(',').slice(0, 4);
-      return `<span style="color:#e040fb">enum</span> <span style="color:#283849;font-size:9px">${vals.join(' | ')}${t.split(',').length > 4 ? '…' : ''}</span>`;
+      const v = t.slice(5).split(',').slice(0,4);
+      return `<span class="t-enum">enum</span> <span class="t-dim">${v.join('|')}…</span>`;
     }
-    return `<span style="color:#5a7080">${t}</span>`;
+    return `<span class="t-dim">${t}</span>`;
   };
 
-  document.getElementById('dp-body').innerHTML = `
-    ${cnt ? `<div class="instance-badge">◆ ${cnt} instance${cnt > 1 ? 's' : ''}</div>` : ''}
+  document.getElementById('dp-title').textContent = code;
+  document.getElementById('dp-title').className = 'dp-title' + (cnt ? ' color-present' : ' color-accent');
+  document.getElementById('dp-subtitle').textContent = n.name || '';
 
-    ${n.def ? `<div class="dp-section">
-      <div class="dp-section-title">Définition</div>
-      <div class="dp-section-body">${n.def.slice(0, 220)}${n.def.length > 220 ? '…' : ''}</div>
-    </div>` : ''}
+  let html = '';
 
-    <div class="dp-section">
-      <div class="dp-section-title">Hiérarchie</div>
-      <div class="dp-section-body">
-        ${n.parent && byCode[n.parent] ? `Parent : <span style="color:#9c7dff;cursor:pointer" onclick="navigateTo('${n.parent}')">${n.parent}</span><br>` : '<span style="color:var(--text)">Racine</span><br>'}
-        ${kids.length} sous-type${kids.length !== 1 ? 's' : ''}
-      </div>
+  if (cnt) html += `<div class="instance-badge">◆ ${cnt} instance${cnt>1?'s':''}</div>`;
+
+  if (n.def) html += `<div class="dp-section">
+    <div class="dp-section-title">Définition</div>
+    <div class="dp-section-body">${n.def.slice(0,220)}${n.def.length>220?'…':''}</div>
+  </div>`;
+
+  html += `<div class="dp-section">
+    <div class="dp-section-title">Hiérarchie</div>
+    <div class="dp-section-body">
+      ${n.parent && byCode[n.parent]
+        ? `Parent : <span class="link-parent" onclick="navigateTo('${n.parent}');if(isMobile())mobileView('graph')">${n.parent}</span><br>`
+        : '<span class="color-dim">Racine</span><br>'}
+      ${kids.length} sous-type${kids.length!==1?'s':''}
     </div>
+  </div>`;
 
-    ${attrs.length ? `<div class="dp-section">
-      <div class="dp-section-title">Attributs directs (${attrs.length})</div>
-      <div class="dp-section-body">
-        <table style="width:100%;border-collapse:collapse;">
-          ${attrs.map(a => `<tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:3px 0;color:${a.o ? 'var(--dim)' : 'var(--bright)'};font-size:10px;width:50%">${a.o ? '' : '<span style="color:#ff4081" title="Obligatoire">!</span> '}${a.n}</td>
-            <td style="padding:3px 0;font-size:10px">${typeLabel(a.t)}</td>
-          </tr>`).join('')}
-        </table>
-      </div>
-    </div>` : ''}
+  if (attrs.length) html += `<div class="dp-section">
+    <div class="dp-section-title">Attributs directs (${attrs.length})</div>
+    <div class="dp-section-body">
+      <table class="attr-table">
+        ${attrs.map(a => `<tr>
+          <td class="${a.o ? 'color-dim' : 'color-bright'}">${a.o ? '' : '<span class="t-required">!</span> '}${a.n}</td>
+          <td>${typeLabel(a.t)}</td>
+        </tr>`).join('')}
+      </table>
+    </div>
+  </div>`;
 
-    ${Object.keys(psets).length ? `<div class="dp-section">
-      <div class="dp-section-title">Property Sets (${Object.keys(psets).length})</div>
-      <div class="dp-section-body">
-        ${Object.entries(psets).map(([pname, props]) => `
-          <div style="margin-bottom:8px">
-            <div style="color:var(--cyan);font-size:10px;font-weight:600;margin-bottom:3px">${pname}</div>
-            ${props.map(p => `<div style="padding:2px 0 2px 8px;border-left:1px solid var(--border2);margin-bottom:2px">
-              <span style="color:var(--bright);font-size:10px">${p.n}</span>
-              ${p.k ? `<span style="color:#e040fb;font-size:9px"> [${p.k}]</span>` : ''}
-              ${p.d ? `<div style="color:var(--dim);font-size:9px;margin-top:1px">${p.d}</div>` : ''}
-            </div>`).join('')}
-          </div>
-        `).join('')}
-      </div>
-    </div>` : ''}
+  if (Object.keys(psets).length) html += `<div class="dp-section">
+    <div class="dp-section-title">Property Sets (${Object.keys(psets).length})</div>
+    <div class="dp-section-body">
+      ${Object.entries(psets).map(([pname,props]) => `
+        <div class="pset-block">
+          <div class="pset-name">${pname}</div>
+          ${props.map(p => `<div class="prop-row">
+            <span class="color-bright">${p.n}</span>
+            ${p.k ? `<span class="t-enum"> [${p.k}]</span>` : ''}
+            ${p.d ? `<div class="color-dim prop-def">${p.d}</div>` : ''}
+          </div>`).join('')}
+        </div>`).join('')}
+    </div>
+  </div>`;
 
-    ${Object.keys(qtos).length ? `<div class="dp-section">
-      <div class="dp-section-title">Quantités (QTO)</div>
-      <div class="dp-section-body">
-        ${Object.entries(qtos).map(([qname, props]) => `
-          <div style="margin-bottom:8px">
-            <div style="color:#ff9100;font-size:10px;font-weight:600;margin-bottom:3px">${qname}</div>
-            ${props.map(p => `<div style="padding:2px 0 2px 8px;border-left:1px solid var(--border2);margin-bottom:2px">
-              <span style="color:var(--bright);font-size:10px">${p.n}</span>
-              ${p.d ? `<div style="color:var(--dim);font-size:9px;margin-top:1px">${p.d}</div>` : ''}
-            </div>`).join('')}
-          </div>
-        `).join('')}
-      </div>
-    </div>` : ''}
+  if (Object.keys(qtos).length) html += `<div class="dp-section">
+    <div class="dp-section-title">Quantités (QTO)</div>
+    <div class="dp-section-body">
+      ${Object.entries(qtos).map(([qname,props]) => `
+        <div class="pset-block">
+          <div class="qto-name">${qname}</div>
+          ${props.map(p => `<div class="prop-row">
+            <span class="color-bright">${p.n}</span>
+            ${p.d ? `<div class="color-dim prop-def">${p.d}</div>` : ''}
+          </div>`).join('')}
+        </div>`).join('')}
+    </div>
+  </div>`;
 
-    ${kids.length ? `<div class="dp-section">
-      <div class="dp-section-title">Sous-types (${kids.length})</div>
-      <div class="dp-section-body">
-        ${kids.map(k => {
-          const kc = modelEntities[k.toUpperCase()] || 0;
-          const kk = (childrenMap[k] || []).length;
-          return `<div style="margin-bottom:2px">
-            <span style="color:${kc ? '#ff4081' : '#00e676'};cursor:pointer" onclick="navigateTo('${k}');if(isMobile())mobileView('graph')">${k}</span>
-            ${kc ? `<span style="color:#ff4081;font-size:9px"> ◆${kc}</span>` : ''}
-            ${kk ? `<span style="color:var(--dim);font-size:9px"> [${kk}]</span>` : ''}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>` : ''}
+  if (kids.length) html += `<div class="dp-section">
+    <div class="dp-section-title">Sous-types (${kids.length})</div>
+    <div class="dp-section-body">
+      ${kids.map(k => {
+        const kc = modelEntities[k.toUpperCase()] || 0;
+        const kk = (childrenMap[k] || []).length;
+        return `<div class="subtype-row">
+          <span class="${kc?'link-present':'link-child'}" onclick="navigateTo('${k}');if(isMobile())mobileView('graph')">${k}</span>
+          ${kc ? `<span class="t-required"> ◆${kc}</span>` : ''}
+          ${kk ? `<span class="color-dim"> [${kk}]</span>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
 
-    <a href="${doc}" target="_blank" class="dp-link">↗ Documentation officielle</a>`;
+  html += `<a href="${doc}" target="_blank" class="dp-link">↗ Documentation officielle</a>`;
+
+  document.getElementById('dp-body').innerHTML = html;
 }
 
-const _si=document.getElementById('searchInput');if(_si)_si.addEventListener('input',e=>{
-  const q=e.target.value.trim().toLowerCase();const sr=document.getElementById('searchResults');
-  if(!q||q.length<2){sr.style.display='none';return;}
-  const m=Object.values(byCode).filter(n=>n.id.toLowerCase().includes(q)).slice(0,10);
-  if(!m.length){sr.style.display='none';return;}
-  sr.innerHTML=m.map(n=>`<div class="search-item" onclick="navigateTo('${n.id}');document.getElementById('searchInput').value='';document.getElementById('searchResults').style.display='none';if(isMobile())mobileView('graph')">${n.id}<span style="color:var(--dim);font-size:8px"> ↳${n.parent||'racine'}</span></div>`).join('');
-  sr.style.display='block';
-});
-document.addEventListener('click',e=>{const sw=document.getElementById('searchWrap');const sr=document.getElementById('searchResults');if(sw&&sr&&!sw.contains(e.target))sr.style.display='none';});
 
 // IFC Drop init
 initIFCDrop(
