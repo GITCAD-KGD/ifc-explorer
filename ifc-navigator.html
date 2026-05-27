@@ -114,24 +114,126 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 .spinner-lg{width:40px;height:40px;border:2px solid #1e2d42;border-top-color:#00e5ff;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* ===== THEMES ===== */
-:root{
-  --bg:#07090f;--panel:#0c1018;--border:#161e2c;--border2:#1e2d42;
-  --text:#7a9ab8;--bright:#cde0f5;--dim:#283849;
-  --cyan:#00e5ff;--purple:#7c4dff;--green:#00e676;--pink:#ff4081;--orange:#ff9100;
+/* ===== THEME VARIABLES ===== */
+:root,
+[data-theme="dark"] {
+  --bg:      #0d1117;
+  --bg2:     #141b24;
+  --bg3:     #1a2332;
+  --panel:   #111820;
+  --border:  #1e2d42;
+  --border2: #263548;
+  --text:    #a8c4e0;
+  --bright:  #ddeeff;
+  --dim:     #3d5470;
+  --cyan:    #00d4f0;
+  --purple:  #8866ff;
+  --green:   #00cc66;
+  --pink:    #ff3377;
+  --orange:  #ff8800;
+  --yellow:  #ffcc00;
+  --accent:  #00d4f0;
+  --accent2: #8866ff;
+  --accent3: #00cc66;
+  --warn:    #ff3377;
+  --text-dim:#3d5470;
+  --text-bright:#ddeeff;
+  --bg-input:#0d1117;
 }
-[data-theme="light"]{
-  --bg:#f0f4f8;--panel:#ffffff;--border:#d0dce8;--border2:#b0c4d8;
-  --text:#3a5068;--bright:#1a2e40;--dim:#8aa0b8;
-  --cyan:#0088bb;--purple:#5522cc;--green:#007744;--pink:#cc2255;--orange:#cc6600;
-}
-[data-theme="system"]{}
 
-/* ===== THEME SWITCHER WIDGET ===== */
-.theme-switcher{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:2px;flex-shrink:0;}
-.theme-btn{padding:3px 8px;border-radius:3px;font-size:10px;cursor:pointer;color:var(--dim);border:none;background:transparent;font-family:'JetBrains Mono',monospace;transition:all 0.15s;line-height:1;}
-.theme-btn:hover{color:var(--cyan);}
-.theme-btn.active{background:var(--cyan);color:#000;font-weight:600;}
+[data-theme="light"] {
+  --bg:      #f5f7fa;
+  --bg2:     #ffffff;
+  --bg3:     #eef1f6;
+  --panel:   #ffffff;
+  --border:  #c8d6e8;
+  --border2: #aabbd0;
+  --text:    #2c4a6e;
+  --bright:  #0f2840;
+  --dim:     #8aaac8;
+  --cyan:    #006fa8;
+  --purple:  #5533cc;
+  --green:   #006633;
+  --pink:    #cc1155;
+  --orange:  #b85500;
+  --yellow:  #886600;
+  --accent:  #006fa8;
+  --accent2: #5533cc;
+  --accent3: #006633;
+  --warn:    #cc1155;
+  --text-dim:#8aaac8;
+  --text-bright:#0f2840;
+  --bg-input:#f5f7fa;
+}
+
+/* Force les éléments HTML à hériter du thème */
+[data-theme="light"] body,
+[data-theme="light"] header,
+[data-theme="light"] .panel,
+[data-theme="light"] .center-panel,
+[data-theme="light"] #leftPanel,
+[data-theme="light"] #rightPanel,
+[data-theme="light"] #bottomPanel,
+[data-theme="light"] #ribbon,
+[data-theme="light"] .ctrl-panel,
+[data-theme="light"] .dp-header,
+[data-theme="light"] .rp-header,
+[data-theme="light"] .bp-header,
+[data-theme="light"] .lp-header,
+[data-theme="light"] .panel-header,
+[data-theme="light"] .filter-bar,
+[data-theme="light"] #detailPanel,
+[data-theme="light"] .entity-card,
+[data-theme="light"] .tree-container,
+[data-theme="light"] .detail-content,
+[data-theme="light"] #schemaLoading,
+[data-theme="light"] .ifc-modal-box {
+  background-color: var(--bg2);
+}
+
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] .search-wrap input,
+[data-theme="light"] #searchInput,
+[data-theme="light"] .bp-toolbar input {
+  background: var(--bg-input) !important;
+  color: var(--bright) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="light"] .tree-node:hover { background: rgba(0,111,168,0.06); }
+[data-theme="light"] .tree-node.selected { background: rgba(0,111,168,0.1); }
+[data-theme="light"] .entity-card:hover { border-color: var(--cyan); }
+[data-theme="light"] .entity-card { background: var(--bg3); }
+[data-theme="light"] table.catalogue th { background: var(--bg3); }
+[data-theme="light"] table.catalogue tr:hover td { background: rgba(0,111,168,0.05); }
+[data-theme="light"] .rbtn:hover { background: rgba(0,111,168,0.08); }
+[data-theme="light"] .ctrl-panel { background: rgba(255,255,255,0.95); }
+
+/* ===== THEME SWITCHER ===== */
+.theme-switcher {
+  display: flex;
+  gap: 2px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.theme-btn {
+  padding: 3px 7px;
+  border-radius: 3px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--dim);
+  border: none;
+  background: transparent;
+  transition: all 0.15s;
+}
+.theme-btn:hover { color: var(--cyan); }
+.theme-btn.active { background: var(--cyan); color: #000; }
+
 
 </style>
 </head>
@@ -155,9 +257,9 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
   <a class="back-link" href="index.html">← Accueil</a>
   <div class="logo">IFC<span>/</span>Nav</div>
   <div class="theme-switcher">
-    <button class="theme-btn" data-theme="dark"  onclick="applyTheme('dark')" title="Sombre">◑</button>
-    <button class="theme-btn" data-theme="light" onclick="applyTheme('light')" title="Clair">○</button>
-    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système">◐</button>
+    <button class="theme-btn" data-theme="dark"  onclick="applyTheme('dark')" title="Sombre">🌙</button>
+    <button class="theme-btn" data-theme="light" onclick="applyTheme('light')" title="Clair">☀️</button>
+    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')" title="Système">🖥️</button>
   </div>
   <div class="view-switcher"><a class="view-btn current" href="ifc-navigator.html">Nav</a><a class="view-btn" href="ifc-explorer.html">Explorer</a><a class="view-btn" href="ifc-graph.html">Graph</a><a class="view-btn" href="ifc-node-editor.html">Nodes</a></div>
   <div class="mode-tabs">
@@ -169,7 +271,7 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
     <option value="ifc4">IFC4</option>
     <option value="ifc4x3" selected>4.3</option>
   </select>
-  <div class="drop-btn">⬡ .ifc<input type="file" id="fileInput" accept=".ifc"></div>
+  <div class="drop-btn" id="dropZone">⬡ .ifc<input type="file" id="fileInput" accept=".ifc"></div>
   <div id="dropStatus"></div>
   <div id="modeLabel">◆ IFC</div>
   <button id="backBtn" disabled onclick="goBack()">← Retour</button>
@@ -211,17 +313,18 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 </div>
 
 <script>
-// ===== THEME MANAGER =====
+// ===== THEME MANAGER v2 =====
 const THEME_KEY = 'ifc_theme';
 
 function applyTheme(theme) {
   const root = document.documentElement;
   if (theme === 'system') {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
   } else {
     root.setAttribute('data-theme', theme);
   }
+  // Mettre à jour tous les boutons (header + ribbon)
   document.querySelectorAll('.theme-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.theme === theme);
   });
@@ -231,19 +334,9 @@ function applyTheme(theme) {
 function initTheme() {
   const saved = sessionStorage.getItem(THEME_KEY) || 'system';
   applyTheme(saved);
-  // Écouter les changements système
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     if (sessionStorage.getItem(THEME_KEY) === 'system') applyTheme('system');
   });
-}
-
-// HTML du widget à insérer dans le header
-function themeSwitcherHTML() {
-  return `<div class="theme-switcher">
-    <button class="theme-btn" data-theme="dark"  onclick="applyTheme('dark')">◑</button>
-    <button class="theme-btn" data-theme="light" onclick="applyTheme('light')">○</button>
-    <button class="theme-btn" data-theme="system" onclick="applyTheme('system')">◐</button>
-  </div>`;
 }
 
 // ===== SHARED IFC STATE (sessionStorage) =====
