@@ -533,28 +533,10 @@ table.catalogue tr.selected td{background:rgba(0,212,240,0.08);}
 
 <script>
 const THEME_KEY = 'ifc_theme';
-function applyTheme(theme) {
-  const root = document.documentElement;
-  if (theme === 'system') {
-    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.setAttribute('data-theme', dark ? 'dark' : 'light');
-  } else {
-    root.setAttribute('data-theme', theme);
-  }
-  // Marquer le bouton correspondant à la sélection réelle (system/dark/light)
-  document.querySelectorAll('.theme-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.theme === theme);
-  });
-  sessionStorage.setItem(THEME_KEY, theme);
-}
-function initTheme() {
-  const saved = sessionStorage.getItem('ifc_theme') || 'system';
-  // Appliquer immédiatement
-  applyTheme(saved);
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (sessionStorage.getItem('ifc_theme') === 'system') applyTheme('system');
-  });
-}
+// applyTheme: voir premier script
+
+// initTheme: voir premier script
+
 // ===== SHARED IFC STATE (sessionStorage) =====
 // Clés sessionStorage
 const SS_KEY_ENTITIES = 'ifc_entities';
@@ -999,9 +981,9 @@ async function updateRightPanel(code){
 // Filters
 function renderFilters(){
   const fc=document.getElementById('filterCategories');
-  fc.innerHTML=Object.entries(GROUPS).map(([key,g])=>{const cnt=allNodes.filter(n=>n.group===key).length;const active=activeFilters.has(key);return'<div class="filter-item '+(active?'active':'')+'" onclick="toggleFilter(''+key+'')">'+'<div class="filter-dot" style="background:'+g.color+'"></div>'+'<div class="filter-label">'+g.label+'</div>'+'<div class="filter-count">'+cnt+'</div>'+'<div class="filter-check '+(active?'checked':'')+'">'+( active?'✓':'')+'</div></div>';}).join('');
+  fc.innerHTML=Object.entries(GROUPS).map(([key,g])=>{const cnt=allNodes.filter(n=>n.group===key).length;const active=activeFilters.has(key);return'<div class="filter-item '+(active?'active':'')+'" onclick="toggleFilter('"+key+"')" >'+'<div class="filter-dot" style="background:'+g.color+'"></div>'+'<div class="filter-label">'+g.label+'</div>'+'<div class="filter-count">'+cnt+'</div>'+'<div class="filter-check '+(active?'checked':'')+'">'+( active?'✓':'')+'</div></div>';}).join('');
   const fr=document.getElementById('filterRelations');
-  fr.innerHTML=RELATIONS.map(r=>{const active=activeRelFilters.has(r.id);return'<div class="filter-item '+(active?'active':'')+'" onclick="toggleRelFilter(''+r.id+'')">'+'<div class="filter-dot" style="background:'+r.color+';border-radius:0"></div>'+'<div class="filter-label" style="font-size:9px">'+r.label.replace('IfcRel','↔ ')+'</div>'+'<div class="filter-check '+(active?'checked':'')+'">'+( active?'✓':'')+'</div></div>';}).join('');
+  fr.innerHTML=RELATIONS.map(r=>{const active=activeRelFilters.has(r.id);return'<div class="filter-item '+(active?'active':'')+'" onclick="toggleRelFilter('"+r.id+"')" >'+'<div class="filter-dot" style="background:'+r.color+';border-radius:0"></div>'+'<div class="filter-label" style="font-size:9px">'+r.label.replace('IfcRel','↔ ')+'</div>'+'<div class="filter-check '+(active?'checked':'')+'">'+( active?'✓':'')+'</div></div>';}).join('');
   document.getElementById('lpCount').textContent=allNodes.length;
 }
 function toggleFilter(key){activeFilters.has(key)?activeFilters.delete(key):activeFilters.add(key);renderFilters();}
@@ -1023,7 +1005,7 @@ function renderCatalogue(){
     const cnt=modelEntities[n.id.toUpperCase()]||0;
     const kids=(childrenMap[n.id]||[]).length;
     const gc=GROUPS[n.group]?.color||'#455a64';
-    return'<tr class="'+(selectedCode===n.id?'selected':'')+'" ondblclick="addNodeToGraph('"+n.id+"',null)" onclick="updateRightPanel(''+n.id+'');selectedCode=''+n.id+'';renderGraphDOM();renderCatalogue()">'+'<td style="color:'+(cnt?'#ff3377':'var(--cyan)')+'">'+n.id+'</td>'+'<td>'+(n.name||'–')+'</td>'+'<td style="color:var(--dim);font-size:9px">'+(n.parent||'racine')+'</td>'+'<td><span style="color:'+gc+';font-size:9px">'+(GROUPS[n.group]?.label||n.group)+'</span></td>'+'<td>'+(cnt?'<span class="td-badge">◆ '+cnt+'</span>':'–')+'</td>'+'<td style="color:var(--dim)">'+(kids||'–')+'</td></tr>';
+    return'<tr class="'+(selectedCode===n.id?'selected':'')+'" ondblclick="addNodeToGraph(this.dataset.id,null)" data-id="'+n.id+'" x-skip=",null)" onclick="updateRightPanel(''+n.id+'');selectedCode=''+n.id+'';renderGraphDOM();renderCatalogue()">'+'<td style="color:'+(cnt?'#ff3377':'var(--cyan)')+'">'+n.id+'</td>'+'<td>'+(n.name||'–')+'</td>'+'<td style="color:var(--dim);font-size:9px">'+(n.parent||'racine')+'</td>'+'<td><span style="color:'+gc+';font-size:9px">'+(GROUPS[n.group]?.label||n.group)+'</span></td>'+'<td>'+(cnt?'<span class="td-badge">◆ '+cnt+'</span>':'–')+'</td>'+'<td style="color:var(--dim)">'+(kids||'–')+'</td></tr>';
   }).join('');
   if(items.length>300)tbody.innerHTML+='<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:6px">… '+(items.length-300)+' autres</td></tr>';
 }
