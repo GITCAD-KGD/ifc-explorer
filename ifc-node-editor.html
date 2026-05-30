@@ -820,18 +820,17 @@ svg.addEventListener('mousemove',e=>{
   }
   if(dragNode&&!nodesLocked){const pt=svgPt(e.clientX,e.clientY);dragNode.x=pt.x-dragNode.ox;dragNode.y=pt.y-dragNode.oy;renderGraphDOM();}
 });
-svg.addEventListener('mouseup',e=>{
-  if(selStart&&selRect){
+window.addEventListener('mouseup',e=>{
+  if(selStart){
     const pt=svgPt(e.clientX,e.clientY);
     const rx=Math.min(selStart.x,pt.x),ry=Math.min(selStart.y,pt.y);
     const rx2=Math.max(selStart.x,pt.x),ry2=Math.max(selStart.y,pt.y);
     if(rx2-rx>4||ry2-ry>4){
-      // Sélectionner tous les nœuds dans le rectangle
       const hit=graphNodes.filter(n=>n.x+n.w>rx&&n.x<rx2&&n.y+n.h>ry&&n.y<ry2);
       if(hit.length){selectedCode=hit[hit.length-1].id;renderGraphDOM();updateRightPanel(selectedCode);renderCatalogue();}
     }
+    selEl.style.display='none';selStart=null;selRect=null;
   }
-  selEl.style.display='none';selStart=null;selRect=null;
   panStart=null;dragNode=null;
 });
 svg.addEventListener('mouseleave',()=>{panStart=null;dragNode=null;selEl.style.display='none';selStart=null;selRect=null;});
