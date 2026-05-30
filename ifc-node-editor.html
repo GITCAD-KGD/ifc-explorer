@@ -91,7 +91,7 @@ header{
   overflow-x:auto;
 }
 .back-link{
-  font-size:10px;color:var(--dim);text-decoration:none;
+  font-size:10px;color:var(--text);text-decoration:none;
   padding:3px 7px;border:1px solid var(--border2);border-radius:3px;
   white-space:nowrap;flex-shrink:0;
 }
@@ -107,7 +107,7 @@ header{
 }
 .view-btn{
   padding:3px 8px;border-radius:3px;font-size:10px;cursor:pointer;
-  color:var(--dim);border:1px solid var(--border2);background:transparent;
+  color:var(--text);border:1px solid var(--border2);background:transparent;
   font-family:'JetBrains Mono',monospace;text-decoration:none;
   transition:all 0.15s;white-space:nowrap;
 }
@@ -153,7 +153,7 @@ header{
 }
 .mode-tab{
   padding:3px 9px;border-radius:3px;font-size:10px;cursor:pointer;
-  color:var(--dim);border:none;background:transparent;
+  color:var(--text);border:none;background:transparent;
   font-family:'JetBrains Mono',monospace;transition:all 0.15s;
 }
 .mode-tab.active{background:var(--cyan);color:#000;font-weight:600;}
@@ -165,7 +165,7 @@ header{
 .schema-select:disabled{opacity:0.3;}
 .drop-btn{
   padding:3px 9px;border:1px dashed var(--border2);border-radius:3px;
-  font-size:10px;cursor:pointer;color:var(--dim);background:transparent;
+  font-size:10px;cursor:pointer;color:var(--text);background:transparent;
   position:relative;font-family:'JetBrains Mono',monospace;
   transition:all 0.15s;white-space:nowrap;flex-shrink:0;
 }
@@ -780,7 +780,7 @@ async function buildIfcMode(){
 // SVG canvas
 const svg=document.getElementById('nodeCanvas');
 let viewBox={x:0,y:0,w:800,h:500};
-let dragNode=null,panStart=null,panVB=null;
+let dragNode=null,panStart=null,panVB=null,lastSvgPt=null;
 const NODE_W=160,NODE_H=44;
 
 function svgPt(cx,cy){const r=svg.getBoundingClientRect();return{x:viewBox.x+(cx-r.left)*(viewBox.w/r.width),y:viewBox.y+(cy-r.top)*(viewBox.h/r.height)};}
@@ -813,6 +813,7 @@ svg.addEventListener('mousemove',e=>{
   if(panStart){const r=svg.getBoundingClientRect();viewBox.x=panVB.x-(e.clientX-panStart.x)*(panVB.w/r.width);viewBox.y=panVB.y-(e.clientY-panStart.y)*(panVB.h/r.height);updateVB();}
   if(selStart){
     const pt=svgPt(e.clientX,e.clientY);
+    lastSvgPt=pt;
     const rx=Math.min(selStart.x,pt.x),ry=Math.min(selStart.y,pt.y);
     const rw=Math.abs(pt.x-selStart.x),rh=Math.abs(pt.y-selStart.y);
     selEl.setAttribute('x',rx);selEl.setAttribute('y',ry);
@@ -821,15 +822,15 @@ svg.addEventListener('mousemove',e=>{
   if(dragNode&&!nodesLocked){const pt=svgPt(e.clientX,e.clientY);dragNode.x=pt.x-dragNode.ox;dragNode.y=pt.y-dragNode.oy;renderGraphDOM();}
 });
 window.addEventListener('mouseup',e=>{
-  if(selStart){
-    const pt=svgPt(e.clientX,e.clientY);
+  if(selStart&&lastSvgPt){
+    const pt=lastSvgPt;
     const rx=Math.min(selStart.x,pt.x),ry=Math.min(selStart.y,pt.y);
     const rx2=Math.max(selStart.x,pt.x),ry2=Math.max(selStart.y,pt.y);
     if(rx2-rx>4||ry2-ry>4){
       const hit=graphNodes.filter(n=>n.x+n.w>rx&&n.x<rx2&&n.y+n.h>ry&&n.y<ry2);
       if(hit.length){selectedCode=hit[hit.length-1].id;renderGraphDOM();updateRightPanel(selectedCode);renderCatalogue();}
     }
-    selEl.style.display='none';selStart=null;selRect=null;
+    selEl.style.display='none';selStart=null;selRect=null;lastSvgPt=null;
   }
   panStart=null;dragNode=null;
 });
@@ -872,7 +873,7 @@ function addNeighbors(){
   collect(selectedCode,depth);
   const cx=graphNodes.find(n=>n.id===selectedCode);
   const uniq=[...new Set(toAdd)].filter(id=>!graphNodes.find(n=>n.id===id));
-  const baseX=(cx?.x||300)+NODE_W+40;
+  const baseX=(cx?.x||300)+NODE_W+100;
   const totalH=uniq.length*(NODE_H+12);
   const startY=(cx?.y||250)-(totalH/2)+(NODE_H/2);
   uniq.forEach((id,i)=>{addNodeToGraph(id,{x:baseX,y:startY+i*(NODE_H+12)});});
@@ -882,7 +883,7 @@ function expandAll(){
   const kids=childrenMap[selectedCode]||[];
   const cx=graphNodes.find(n=>n.id===selectedCode);
   const newKids=kids.filter(k=>!graphNodes.find(n=>n.id===k));
-  const baseX=(cx?.x||300)+NODE_W+40;
+  const baseX=(cx?.x||300)+NODE_W+100;
   const totalH=newKids.length*(NODE_H+12);
   const startY=(cx?.y||250)-(totalH/2)+(NODE_H/2);
   newKids.forEach((k,i)=>{addNodeToGraph(k,{x:baseX,y:startY+i*(NODE_H+12)});});
