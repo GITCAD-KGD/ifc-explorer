@@ -75,7 +75,7 @@ header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px
 .instance-badge{display:inline-block;background:var(--pink);color:#fff;padding:2px 8px;border-radius:3px;font-weight:700;font-size:11px;margin-bottom:8px;}
 
 /* LEGEND */
-#legend{position:absolute;bottom:12px;left:12px;background:var(--panel);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;font-size:9px;z-index:10;}
+#legend{margin:auto 12px 12px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;font-size:9px;flex-shrink:0;}
 .leg-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
@@ -453,12 +453,6 @@ body, .tree-node, .node-name, td, .filter-label,
   <div id="graphWrap">
     <svg id="graphSvg"></svg>
     <div id="nodeCount"></div>
-    <div id="legend">
-      <div class="leg-row"><div class="leg-dot leg-dot-active"></div>Actif</div>
-      <div class="leg-row"><div class="leg-dot leg-dot-parent"></div>Parent</div>
-      <div class="leg-row"><div class="leg-dot leg-dot-child"></div>Enfants</div>
-      <div class="leg-row"><div class="leg-dot leg-dot-present"></div>Dans IFC</div>
-    </div>
   </div>
 
   <button class="dp-toggle" id="dpToggle" onclick="toggleDetail()">‹</button>
@@ -470,6 +464,12 @@ body, .tree-node, .node-name, td, .filter-label,
     </div>
     <div class="dp-body" id="dp-body">
       <div style="color:var(--dim);font-size:10px;margin-top:16px;text-align:center">Cliquer sur un nœud</div>
+    </div>
+    <div id="legend">
+      <div class="leg-row"><div class="leg-dot leg-dot-active"></div>Actif</div>
+      <div class="leg-row"><div class="leg-dot leg-dot-parent"></div>Parent</div>
+      <div class="leg-row"><div class="leg-dot leg-dot-child"></div>Enfants</div>
+      <div class="leg-row"><div class="leg-dot leg-dot-present"></div>Dans IFC</div>
     </div>
   </div>
 </div>
@@ -754,8 +754,10 @@ const f=defs.append('filter').attr('id','glow').attr('x','-50%').attr('y','-50%'
 f.append('feGaussianBlur').attr('stdDeviation',8).attr('result','blur');
 const fm=f.append('feMerge');fm.append('feMergeNode').attr('in','blur');fm.append('feMergeNode').attr('in','SourceGraphic');
 const mainG=svg.append('g');
-const zoom=d3.zoom().scaleExtent([0.15,5]).on('zoom',e=>mainG.attr('transform',e.transform));
+const zoom=d3.zoom().scaleExtent([0.15,5]).on('zoom',e=>mainG.attr('transform',e.transform))
+  .filter(e=>{ if(e.type==='mousedown') return false; return true; });
 svg.call(zoom);
+svg.on('wheel.pan',e=>{ e.preventDefault(); const dx=e.shiftKey?-e.deltaY:0; const dy=e.shiftKey?0:-e.deltaY; svg.call(zoom.translateBy,dx*0.8,dy*0.8); },{passive:false});
 let simulation;
 
 function nColor(d,role){

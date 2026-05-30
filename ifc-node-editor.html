@@ -53,6 +53,8 @@ function initTheme() {
   --accent2:#8866ff;
   --accent3:#00cc66;
   --warn:   #ff3377;
+  --sel-fill: rgba(0,212,240,0.15);
+  --pres-fill: rgba(255,51,119,0.10);
 }
 [data-theme="light"] {
   --bg:     #eef2f7;
@@ -73,6 +75,8 @@ function initTheme() {
   --accent2:#3311aa;
   --accent3:#004422;
   --warn:   #880033;
+  --sel-fill: rgba(0,85,128,0.12);
+  --pres-fill: rgba(136,0,51,0.08);
 }
 /* ===== HEADER UNIFORME ===== */
 header{
@@ -783,13 +787,54 @@ function svgPt(cx,cy){const r=svg.getBoundingClientRect();return{x:viewBox.x+(cx
 function updateVB(){svg.setAttribute('viewBox',viewBox.x+' '+viewBox.y+' '+viewBox.w+' '+viewBox.h);}
 
 svg.addEventListener('wheel',e=>{e.preventDefault();const pt=svgPt(e.clientX,e.clientY),f=e.deltaY>0?1.12:0.89;viewBox.x=pt.x-(pt.x-viewBox.x)*f;viewBox.y=pt.y-(pt.y-viewBox.y)*f;viewBox.w*=f;viewBox.h*=f;updateVB();},{passive:false});
-svg.addEventListener('mousedown',e=>{if(e.target===svg||e.target.closest('#edgeLayer')){panStart={x:e.clientX,y:e.clientY};panVB={...viewBox};}});
+// Zone de sélection multi-nœuds
+let selRect=null,selStart=null;
+const selEl=document.createElementNS('http://www.w3.org/2000/svg','rect');
+selEl.setAttribute('fill','rgba(0,212,240,0.08)');
+selEl.setAttribute('stroke','#00d4f0');
+selEl.setAttribute('stroke-width','1');
+selEl.setAttribute('stroke-dasharray','4 2');
+selEl.style.display='none';
+selEl.style.pointerEvents='none';
+document.getElementById('edgeLayer').after(selEl);
+
+svg.addEventListener('mousedown',e=>{
+  const onEdge=e.target.closest('#edgeLayer');
+  const onNode=e.target.closest('#nodeLayer g');
+  if(e.button===1){e.preventDefault();panStart={x:e.clientX,y:e.clientY};panVB={...viewBox};return;}
+  if(e.button===0&&(e.target===svg||onEdge)&&!onNode){
+    const pt=svgPt(e.clientX,e.clientY);
+    selStart={x:pt.x,y:pt.y};selRect={x:pt.x,y:pt.y,w:0,h:0};
+    selEl.style.display='';
+    return;
+  }
+});
 svg.addEventListener('mousemove',e=>{
   if(panStart){const r=svg.getBoundingClientRect();viewBox.x=panVB.x-(e.clientX-panStart.x)*(panVB.w/r.width);viewBox.y=panVB.y-(e.clientY-panStart.y)*(panVB.h/r.height);updateVB();}
+  if(selStart){
+    const pt=svgPt(e.clientX,e.clientY);
+    const rx=Math.min(selStart.x,pt.x),ry=Math.min(selStart.y,pt.y);
+    const rw=Math.abs(pt.x-selStart.x),rh=Math.abs(pt.y-selStart.y);
+    selEl.setAttribute('x',rx);selEl.setAttribute('y',ry);
+    selEl.setAttribute('width',rw);selEl.setAttribute('height',rh);
+  }
   if(dragNode&&!nodesLocked){const pt=svgPt(e.clientX,e.clientY);dragNode.x=pt.x-dragNode.ox;dragNode.y=pt.y-dragNode.oy;renderGraphDOM();}
 });
-svg.addEventListener('mouseup',()=>{panStart=null;dragNode=null;});
-svg.addEventListener('mouseleave',()=>{panStart=null;dragNode=null;});
+svg.addEventListener('mouseup',e=>{
+  if(selStart&&selRect){
+    const pt=svgPt(e.clientX,e.clientY);
+    const rx=Math.min(selStart.x,pt.x),ry=Math.min(selStart.y,pt.y);
+    const rx2=Math.max(selStart.x,pt.x),ry2=Math.max(selStart.y,pt.y);
+    if(rx2-rx>4||ry2-ry>4){
+      // Sélectionner tous les nœuds dans le rectangle
+      const hit=graphNodes.filter(n=>n.x+n.w>rx&&n.x<rx2&&n.y+n.h>ry&&n.y<ry2);
+      if(hit.length){selectedCode=hit[hit.length-1].id;renderGraphDOM();updateRightPanel(selectedCode);renderCatalogue();}
+    }
+  }
+  selEl.style.display='none';selStart=null;selRect=null;
+  panStart=null;dragNode=null;
+});
+svg.addEventListener('mouseleave',()=>{panStart=null;dragNode=null;selEl.style.display='none';selStart=null;selRect=null;});
 svg.addEventListener('dblclick',function(e){
   var tag=e.target.tagName.toLowerCase();
   if(tag==='circle'||tag==='rect'||tag==='text'||tag==='polygon')return;
@@ -827,13 +872,21 @@ function addNeighbors(){
   function collect(code,d){if(d<=0)return;(childrenMap[code]||[]).forEach(k=>{toAdd.push(k);collect(k,d-1);});const n=byCode[code];if(n?.parent)toAdd.push(n.parent);}
   collect(selectedCode,depth);
   const cx=graphNodes.find(n=>n.id===selectedCode);
-  let i=0;const uniq=[...new Set(toAdd)];
-  uniq.forEach(id=>{if(!graphNodes.find(n=>n.id===id)){const angle=(i/uniq.length)*2*Math.PI,r=180+depth*60;addNodeToGraph(id,{x:(cx?.x||300)+Math.cos(angle)*r,y:(cx?.y||250)+Math.sin(angle)*r});i++;}});
+  const uniq=[...new Set(toAdd)].filter(id=>!graphNodes.find(n=>n.id===id));
+  const baseX=(cx?.x||300)+NODE_W+40;
+  const totalH=uniq.length*(NODE_H+12);
+  const startY=(cx?.y||250)-(totalH/2)+(NODE_H/2);
+  uniq.forEach((id,i)=>{addNodeToGraph(id,{x:baseX,y:startY+i*(NODE_H+12)});});
 }
 function expandAll(){
   if(!selectedCode)return;
   const kids=childrenMap[selectedCode]||[];
-  kids.forEach((k,i)=>{if(!graphNodes.find(n=>n.id===k)){const cx=graphNodes.find(n=>n.id===selectedCode);const angle=(i/kids.length)*2*Math.PI-Math.PI/2;addNodeToGraph(k,{x:(cx?.x||300)+Math.cos(angle)*220,y:(cx?.y||250)+Math.sin(angle)*220});}});
+  const cx=graphNodes.find(n=>n.id===selectedCode);
+  const newKids=kids.filter(k=>!graphNodes.find(n=>n.id===k));
+  const baseX=(cx?.x||300)+NODE_W+40;
+  const totalH=newKids.length*(NODE_H+12);
+  const startY=(cx?.y||250)-(totalH/2)+(NODE_H/2);
+  newKids.forEach((k,i)=>{addNodeToGraph(k,{x:baseX,y:startY+i*(NODE_H+12)});});
 }
 function selectNode(code){selectedCode=code;renderGraphDOM();updateRightPanel(code);renderCatalogue();}
 function removeNode(code){graphNodes=graphNodes.filter(n=>n.id!==code);graphEdges=graphEdges.filter(e=>e.source!==code&&e.target!==code);if(selectedCode===code)selectedCode=null;renderGraphDOM();}
@@ -880,8 +933,8 @@ function renderGraphDOM(){
     const rect=document.createElementNS(ns,'rect');
     rect.setAttribute('width',gn.w);rect.setAttribute('height',gn.h);
     rect.setAttribute('rx','4');rect.setAttribute('ry','4');
-    rect.setAttribute('fill',isSel?'rgba(0,212,240,0.12)':(isPresent?'rgba(255,51,119,0.08)':'var(--panel,#0e1520)'));
-    rect.setAttribute('stroke',isSel?'#00d4f0':color);
+    rect.setAttribute('fill',isSel?'var(--sel-fill,rgba(0,212,240,0.12))':(isPresent?'var(--pres-fill,rgba(255,51,119,0.08))':'var(--panel,#0e1520)'));
+    rect.setAttribute('stroke',isSel?'var(--cyan,#00d4f0)':color);
     rect.setAttribute('stroke-width',isSel?'2':'1.5');
     if(isSel)rect.setAttribute('filter','url(#nodeGlow)');
     g.appendChild(rect);
@@ -895,7 +948,7 @@ function renderGraphDOM(){
     title.setAttribute('x','12');title.setAttribute('y','17');
     title.setAttribute('font-family','JetBrains Mono,monospace');title.setAttribute('font-size','10');
     title.setAttribute('font-weight','600');
-    title.setAttribute('fill',isSel?'#00d4f0':(isPresent?'#ff3377':'var(--bright,#cde0f5)'));
+    title.setAttribute('fill',isSel?'var(--cyan,#00d4f0)':(isPresent?'var(--pink,#ff3377)':'var(--bright,#cde0f5)'));
     title.textContent=gn.id.length>22?gn.id.slice(0,21)+'…':gn.id;
     g.appendChild(title);
 
@@ -1022,11 +1075,11 @@ function renderCatalogue(){
     tr.dataset.nid=n.id;
     if(isSel)tr.classList.add('selected');
     tr.innerHTML=
-      '<td style="color:'+(cnt?'#ff3377':'var(--cyan)')+'">'+n.id+'</td>'
-      +'<td>'+(n.name||'–')+'</td>'
-      +'<td style="color:var(--dim);font-size:9px">'+(n.parent||'racine')+'</td>'
-      +'<td><span style="color:'+gc+';font-size:9px">'+(GROUPS[n.group]?.label||n.group)+'</span></td>'
-      +'<td>'+(cnt?'<span class="td-badge">◆ '+cnt+'</span>':'–')+'</td>'
+      '<td style="color:'+(cnt?'var(--pink,#ff3377)':'var(--cyan,#00d4f0)')+';font-weight:700">'+n.id+'</td>'
+      +'<td style="color:var(--text)">'+(n.name||'–')+'</td>'
+      +'<td style="color:var(--dim);font-size:9px">'+(n.parent||'<span style="color:var(--dim);font-style:italic">racine</span>')+'</td>'
+      +'<td><span style="display:inline-block;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:700;color:#000;background:'+gc+';">'+(GROUPS[n.group]?.label||n.group)+'</span></td>'
+      +'<td>'+(cnt?'<span class="td-badge">◆ '+cnt+'</span>':'<span style="color:var(--dim)">–</span>')+'</td>'
       +'<td style="color:var(--dim)">'+(kids||'–')+'</td>';
     tr.addEventListener('click',function(){
       selectedCode=this.dataset.nid;
